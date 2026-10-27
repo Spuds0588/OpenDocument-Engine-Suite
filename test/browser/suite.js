@@ -413,6 +413,70 @@ await test('odp: empty deck and images without captions degrade cleanly', async 
   deck.destroy();
 });
 
+/* ------------------------------ real files ------------------------------ */
+
+await test('real files: producer output parses in the browser', async () => {
+  const read = async (name) => new Uint8Array(await (await fetch(`/test/fixtures/real/${name}`)).arrayBuffer());
+
+  const text = await parseODT(await read('compdocfileformat.odt'));
+  eq(text.body.filter((block) => block.type === 'table').length, 21, 'tables');
+  match(text.toMarkdown(), /^# Introduction$/m, 'markdown heading');
+  text.destroy();
+
+  const workbook = await parseODS(await read('default_namespace.ods'));
+  eq(workbook.meta.sheetCount, 19, 'sheet count');
+  eq(workbook.sheet(workbook.sheetNames[0]).rows.length, 13, 'first sheet rows');
+  workbook.destroy();
+
+  const deck = await parseODP(await read('XPathTest-foreignPrefix.odp'));
+  eq(deck.meta.slideCount, 2, 'slide count');
+  match(deck.toMarkdown(), /Point C/, 'markdown text');
+  deck.destroy();
+});
+
+/* -------------------------------- memory -------------------------------- */
+
+await test('memory: repeated parse, render and destroy cycles do not accumulate', async () => {
+  const pictures = {};
+  let paragraphs = '';
+  for (let index = 0; index < 120; index++) {
+    pictures[`px-${index}.png`] = TINY_PNG;
+    paragraphs += `<text:p><draw:frame svg:width="1cm" svg:height="1cm">`
+      + `<draw:image xlink:href="Pictures/px-${index}.png"/></draw:frame>Paragraph ${index} with a little text.</text:p>`;
+  }
+  const bytes = await buildOdf('odt', { body: `<office:text>${paragraphs}</office:text>`, pictures });
+
+  const cycles = 40;
+  const collect = () => {
+    for (let index = 0; index < 3; index++) globalThis.gc();
+  };
+
+  collect();
+  const baseline = performance.memory.usedJSHeapSize;
+  let lastImage = null;
+  for (let index = 0; index < cycles; index++) {
+    const doc = await parseODT(bytes);
+    doc.toHTML();
+    lastImage = doc.body[0].children[0].src;
+    doc.destroy();
+  }
+  collect();
+  const heap = performance.memory.usedJSHeapSize;
+
+  window.__odfMetrics = { memory: { cycles, xmlBytes: paragraphs.length, baseline, heap, growth: heap - baseline } };
+
+  ok(heap - baseline < 8 * 1024 * 1024, `heap grew ${((heap - baseline) / 1048576).toFixed(2)} MB over ${cycles} cycles`);
+
+  // Blob URLs created in the last cycle must be gone as well.
+  let revoked = false;
+  try {
+    await fetch(lastImage);
+  } catch {
+    revoked = true;
+  }
+  eq(revoked, true, 'revoked Blob URL after repeated cycles');
+});
+
 /* ------------------------------- containers ----------------------------- */
 
 await test('errors: rejects non-ZIP, non-ODF and malformed XML with tagged codes', async () => {

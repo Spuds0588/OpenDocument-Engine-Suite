@@ -16,7 +16,7 @@ import path from 'node:path';
 import { chromium } from 'playwright-core';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const ALLOWED = ['/test/browser/', '/test/helpers/', '/packages/'];
+const ALLOWED = ['/test/browser/', '/test/helpers/', '/test/fixtures/', '/packages/'];
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -117,6 +117,15 @@ try {
     }
   }
   console.log(`\n${passed} passed, ${failed} failed (Chrome ${browser.version()})`);
+
+  const metrics = await page.evaluate(() => window.__odfMetrics || null);
+  if (metrics?.memory) {
+    const { cycles, xmlBytes, growth } = metrics.memory;
+    console.log(
+      `\nmemory after ${cycles} parse + toHTML + destroy cycles on ${(xmlBytes / 1024).toFixed(0)} KB of XML: `
+      + `${growth >= 0 ? '+' : ''}${(growth / 1024).toFixed(0)} KB retained heap`,
+    );
+  }
 
   if (withBench) {
     const bench = await page.evaluate(() => window.__odfBench || { error: window.__odfBenchError });
