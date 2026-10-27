@@ -20,13 +20,13 @@ Each library is one self-contained ES module of 17–23 KB with an empty depende
 import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
 ```
 
-| Library | jsDelivr | GitHub Pages (same bytes) |
+| Library | jsDelivr (pinned to v1.0.0) | GitHub Pages (current `main`) |
 | --- | --- | --- |
 | `odt-engine` | [dist/index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js) | [mirror](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js) |
 | `ods-engine` | [dist/index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/index.js) | [mirror](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js) |
 | `odp-engine` | [dist/index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/index.js) | [mirror](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js) |
 
-Those URLs are frozen at the v1.0.0 release. Use `@main` instead of a release tag if you want the newest build; both hosts serve the identical file.
+The jsDelivr URLs are frozen at the v1.0.0 release; GitHub Pages always serves the current `main` build. Swap the release tag for `@main` on jsDelivr if you would rather follow the newest build. Both hosts serve the identical file.
 
 ### 2. Or drop it into an HTML page
 
