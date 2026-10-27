@@ -17,6 +17,11 @@ its date. `todo.md` is the forward queue; `AGENTS.md` holds the working rules.
 - `@main` is the documented default; a commit SHA or tag gives a frozen copy.
   The build and smoke scripts still run against `dist`, so the committed files
   stay the tested artifacts.
+- Verified after publication: all six bundle URLs return 200 with
+  `application/javascript` and `access-control-allow-origin: *`, and the served
+  bytes match the committed files byte for byte. A cross-origin dynamic import
+  from `example.com` in Chrome loaded all three engines from both hosts and
+  parsed a real `.odt` fixture through the jsDelivr bundle.
 
 ### GitHub Pages landing page
 
