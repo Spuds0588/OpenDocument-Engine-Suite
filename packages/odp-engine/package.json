@@ -1,0 +1,40 @@
+{
+  "name": "odp-engine",
+  "version": "0.1.0",
+  "description": "Zero-dependency OpenDocument Presentation (.odp) parser for the browser: absolute slide layout, print-ready deck HTML and Markdown transcript.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@odf-internal/core": "*"
+  },
+  "keywords": [
+    "odp",
+    "opendocument",
+    "presentation",
+    "slides",
+    "libreoffice-impress",
+    "odp-parser",
+    "odp-to-pdf",
+    "odp-to-markdown",
+    "browser"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

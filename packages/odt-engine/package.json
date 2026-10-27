@@ -1,0 +1,40 @@
+{
+  "name": "odt-engine",
+  "version": "0.1.0",
+  "description": "Zero-dependency OpenDocument Text (.odt) parser for the browser: AST, HTML, PDF-ready print output and Markdown.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@odf-internal/core": "*"
+  },
+  "keywords": [
+    "odt",
+    "opendocument",
+    "odf",
+    "libreoffice",
+    "document-parser",
+    "odt-to-html",
+    "odt-to-pdf",
+    "odt-to-markdown",
+    "browser"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

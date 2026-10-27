@@ -1,0 +1,39 @@
+{
+  "name": "ods-engine",
+  "version": "0.1.0",
+  "description": "Zero-dependency OpenDocument Spreadsheet (.ods) parser for the browser: typed cells, matrix, CSV, JSON and print-ready HTML.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@odf-internal/core": "*"
+  },
+  "keywords": [
+    "ods",
+    "opendocument",
+    "spreadsheet",
+    "libreoffice-calc",
+    "ods-parser",
+    "ods-to-csv",
+    "ods-to-json",
+    "browser"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

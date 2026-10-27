@@ -1,0 +1,25 @@
+{
+  "name": "odf-suite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zero-dependency JavaScript engines for OpenDocument text, spreadsheet and presentation files",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "node --test packages test/integration.test.js",
+    "build": "node scripts/build.mjs",
+    "check": "npm run test && npm run build && npm run smoke",
+    "smoke": "node scripts/smoke.mjs",
+    "bench": "node scripts/bench.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^26.0.0"
+  }
+}
