@@ -4,24 +4,30 @@ Read `.ods` spreadsheets in the browser without SheetJS, a backend or a LibreOff
 
 Keywords: read ods file in browser, ods to json javascript, lightweight ods parser, convert libreoffice calc to csv frontend.
 
-Not published to npm yet. Build from the repository first, then install the package folder from your app:
+## Use it
 
-```bash
-npm install /path/to/OpenDocument-Engine-Suite/packages/ods-engine
-```
-
-Or load the committed bundle without installing anything:
+**Load the bundle from a URL.** jsDelivr mirrors the repository and GitHub Pages serves the same bytes:
 
 ```js
-import { parseODS } from 'https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js';
+import { parseODS } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/ods-engine/dist/index.js';
 ```
 
-jsDelivr mirror: `https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/ods-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build.
+**Or copy this engine into your project** with one command. It unpacks `ods-engine/` into the current directory, with no clone and no build:
+
+```bash
+curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/ods-engine
+```
+
+```js
+import { parseODS } from './ods-engine/dist/index.js';
+```
+
+GitHub Pages mirror: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build. `dist/index.js` is the tested bundle, so neither path needs a build step.
 
 ## Quick start
 
 ```js
-import { parseODS } from 'ods-engine';
+import { parseODS } from './ods-engine/dist/index.js';
 
 const workbook = await parseODS(file);
 

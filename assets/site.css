@@ -591,11 +591,14 @@ h1 {
   overflow-x: auto;
 }
 
+/* Bundle URLs and copy commands are longer than the column, so lines wrap
+   instead of hiding a horizontal scrollbar. Indentation is preserved. */
 .code code {
   color: var(--code-ink);
   font-size: 12.5px;
   line-height: 1.65;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .copy {

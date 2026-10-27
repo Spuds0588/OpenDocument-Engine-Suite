@@ -5,6 +5,51 @@ its date. `todo.md` is the forward queue; `AGENTS.md` holds the working rules.
 
 ## 2026-10-27
 
+### Distribution docs, memory baseline and real-world fixtures
+
+- The documented consumption model is now two paths: import the committed
+  bundle from a URL (jsDelivr, mirrored by GitHub Pages), or copy one engine
+  into a project with a single command:
+  `curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/odt-engine`.
+  `git clone`, `npm run build` and `npm install <path>` instructions are gone
+  from `README.md`, the three package READMEs, the landing page and `llms.txt`.
+  The command was run against the pushed commit: it extracts `odt-engine/` with
+  `dist/`, `src/`, tests and the manifest, and that extracted `dist/index.js`
+  parses an `.odt` fixture in Node.
+- Memory: the browser suite now runs 40 parse + `toHTML` + `destroy` cycles over
+  an 18 KB document with 120 distinct images, forces collection and asserts the
+  retained heap stays under 8 MB. Measured retained heap: **+376 KB**, with the
+  last cycle's Blob URLs revoked. The driver prints the number, so a regression
+  shows up as a larger figure instead of a sudden failure.
+- Real producer output: five Apache-2.0 documents from the ODF Toolkit
+  (`odfdom/src/test/resources/test-input/`) are committed under
+  `test/fixtures/real` with source, license and SHA-256 recorded in that
+  directory's README. They are LibreOffice 6.1 `character-styles.odt`, StarOffice
+  8 `compdocfileformat.odt` (21 tables, 29 lists, spans, an embedded image),
+  a third-party `default_namespace.ods` (19 sheets, default XML namespace,
+  float, boolean and date cells), OpenOffice.org 3.2
+  `XPathTest-foreignPrefix.odp` (non-standard `daisy`, `prefixOne` and
+  `prefixTwo` prefixes) and OpenOffice.org 3.0 `presentationWithEmbedDoc.odp`
+  (embedded chart objects). Three Node tests and one browser check cover them
+  and no parser defects surfaced. The embedded-object deck confirmed the
+  intended degradation: its frames hold `<draw:text-box/>` and image targets
+  that are absent from the archive, so those slides render empty instead of
+  throwing.
+- `AGENTS.md` now allows those provenance-tracked files as the one exception to
+  the in-memory fixture rule.
+- CPU profile of the 5 MB browser benchmark (CDP sampling at 100 µs, three runs
+  per engine), with the phase split measured separately. ODT (0.09 MB
+  container / 5.00 MB XML): 15 ms decompression, 62 ms native XML parse,
+  135–151 ms per run. ODS (0.07 / 4.00 MB): 13 ms, 112 ms, 200–211 ms. ODP
+  (0.07 / 4.00 MB): 13 ms, 121 ms, 232–259 ms. Native `parseFromString` is
+  33–43% of samples and garbage collection 13–20%; the largest single function
+  of ours is about 12%, and the rest is split across many small frames. For ODS
+  and ODP, native parsing plus decompression alone (125 ms and 134 ms) is most
+  of the 150 ms budget, so the target is unreachable without leaving the DOM
+  parser behind. That position, and the unchanged 15 KB size gap, are now
+  recorded as decisions in `todo.md` rather than open work.
+- Suite size after this pass: 116 Node tests and 15 browser checks.
+
 ### Direct-load bundles and mirrors
 
 - Tracked `packages/*/dist` and removed `dist/` from `.gitignore`. The built

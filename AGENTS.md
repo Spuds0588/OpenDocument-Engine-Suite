@@ -43,7 +43,7 @@ current work queue. `history.md` records what is already done.
 
 ```bash
 npm install           # once per checkout
-npm test              # node:test, all packages (113 cases)
+npm test              # node:test, all packages (116 cases)
 npm run test:browser  # build + browser conformance checks in headless Chrome
 npm run build         # minified standalone ESM bundles + declarations into tracked dist
 npm run smoke         # parse fixtures through the built dist bundles
@@ -95,7 +95,11 @@ dependencies only.
   a check there when behavior can differ between jsdom and a browser.
 - Fixtures are real ZIP containers built in memory by
   `test/helpers/odf.js` and `test/helpers/zip.js`. Add fixture support there
-  rather than checking binary files into the repository.
+  rather than checking binary files into the repository. The one exception is
+  `test/fixtures/real/`: a few small documents written by real producers
+  (LibreOffice, OpenOffice, StarOffice), so the parsers are also checked
+  against producer output. Every file there needs its source, license and
+  SHA-256 recorded in that directory's `README.md`.
 - Test behavior through the public API where possible. Reach into a parser only
   when the public API cannot expose the behavior.
 - Cover the empty case, the malformed case and the wrong-format case, not just

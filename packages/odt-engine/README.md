@@ -4,24 +4,30 @@ Parse an `.odt` file entirely in the browser. Zero dependencies, no server uploa
 
 Keywords: javascript parse odt, browser odt to pdf, convert odt to html in the browser, pure js libreoffice writer parser, odt to markdown.
 
-Not published to npm yet. Build from the repository first, then install the package folder from your app:
+## Use it
 
-```bash
-npm install /path/to/OpenDocument-Engine-Suite/packages/odt-engine
-```
-
-Or load the committed bundle without installing anything:
+**Load the bundle from a URL.** jsDelivr mirrors the repository and GitHub Pages serves the same bytes:
 
 ```js
-import { parseODT } from 'https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js';
+import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js';
 ```
 
-jsDelivr mirror: `https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build.
+**Or copy this engine into your project** with one command. It unpacks `odt-engine/` into the current directory, with no clone and no build:
+
+```bash
+curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/odt-engine
+```
+
+```js
+import { parseODT } from './odt-engine/dist/index.js';
+```
+
+GitHub Pages mirror: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build. `dist/index.js` is the tested bundle, so neither path needs a build step.
 
 ## Quick start
 
 ```js
-import { parseODT } from 'odt-engine';
+import { parseODT } from './odt-engine/dist/index.js';
 
 const input = document.querySelector('input[type=file]');
 input.addEventListener('change', async () => {

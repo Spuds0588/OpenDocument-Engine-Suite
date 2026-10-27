@@ -4,24 +4,30 @@ Read `.odp` presentations in the browser. Zero dependencies, absolute slide layo
 
 Keywords: javascript parse odp slides, odp presentation viewer js, libreoffice impress to pdf client side, extract text from odp.
 
-Not published to npm yet. Build from the repository first, then install the package folder from your app:
+## Use it
 
-```bash
-npm install /path/to/OpenDocument-Engine-Suite/packages/odp-engine
-```
-
-Or load the committed bundle without installing anything:
+**Load the bundle from a URL.** jsDelivr mirrors the repository and GitHub Pages serves the same bytes:
 
 ```js
-import { parseODP } from 'https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js';
+import { parseODP } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odp-engine/dist/index.js';
 ```
 
-jsDelivr mirror: `https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odp-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build.
+**Or copy this engine into your project** with one command. It unpacks `odp-engine/` into the current directory, with no clone and no build:
+
+```bash
+curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/odp-engine
+```
+
+```js
+import { parseODP } from './odp-engine/dist/index.js';
+```
+
+GitHub Pages mirror: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build. `dist/index.js` is the tested bundle, so neither path needs a build step.
 
 ## Quick start
 
 ```js
-import { parseODP } from 'odp-engine';
+import { parseODP } from './odp-engine/dist/index.js';
 
 const deck = await parseODP(file);
 

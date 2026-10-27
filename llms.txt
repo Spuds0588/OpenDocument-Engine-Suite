@@ -14,22 +14,15 @@
 - Runtime dependencies: none. Every package has an empty dependencies map.
 - Output: HTML with CSS Paged Media, Markdown, plain text, CSV, JSON and a JSON AST.
 - Current minified sizes: odt-engine 23.35 KB (8.97 KB gzip), ods-engine 17.17 KB (7.05 KB gzip), odp-engine 18.78 KB (7.69 KB gzip).
-- Browser parse benchmark: about 5 MB of XML in headless Chrome 155, median of seven runs after warm-up. ODT 122-128 ms, ODS 194-195 ms, ODP 196-201 ms. The target is 150 ms; ODT meets it, ODS and ODP do not.
+- Browser parse benchmark: about 5 MB of XML in headless Chrome 155, median of seven runs after warm-up. ODT 122-128 ms, ODS 194-195 ms, ODP 196-201 ms. The target is 150 ms; ODT meets it, ODS and ODP do not. A CPU profile attributes 13-15 ms to decompression and 62 / 112 / 121 ms to the browser's own XML parser, so native parsing plus decompression alone is 125 ms and 134 ms of the 150 ms budget for ODS and ODP.
+- Memory: 40 parse, render and destroy cycles over an 18 KB document with 120 images retain about 380 KB of heap in Chrome, with image Blob URLs revoked each cycle.
+- Verification: 116 Node tests and 15 browser checks, including five producer-written documents (LibreOffice, StarOffice, OpenOffice.org) under test/fixtures/real.
 - Node 20 with jsdom takes about 0.95 s (ODT), 1.44 s (ODS) and 1.46 s (ODP) for the same fixtures.
 - Browser support: Chrome 80+, Edge 80+, Firefox 113+, Safari 16.4+, or any runtime with DecompressionStream, DOMParser and Blob URLs.
 - License: MIT.
-- npm status: not published yet. The packages build from the repository into standalone ESM bundles, and those bundles are committed for direct loading.
+- Distribution: not published to npm. Each engine is a standalone ESM bundle committed at packages/<engine>/dist/index.js, ready to import from a URL or copy with one command.
 
-## Install from source
-
-    git clone https://github.com/Spuds0588/OpenDocument-Engine-Suite.git
-    cd OpenDocument-Engine-Suite
-    npm install
-    npm run build
-
-The bundles are written to packages/odt-engine/dist, packages/ods-engine/dist and packages/odp-engine/dist.
-
-## Load without npm
+## Load an engine
 
 Each committed bundle is a standalone ES module, served from GitHub Pages and mirrored by jsDelivr:
 
@@ -39,13 +32,23 @@ Each committed bundle is a standalone ES module, served from GitHub Pages and mi
 
 Import a URL directly:
 
-    import { parseODT } from 'https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js';
+    import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js';
 
 Both hosts serve the same file. `@main` tracks the latest build; replace it with a commit SHA or tag for a frozen copy. To survive one host being unavailable, try the URLs in order with `await import(url)` and a `try/catch`.
 
+## Copy one engine into a project
+
+One command unpacks the engine folder (bundle, source, tests, manifest) into the current directory; no clone, no install and no build step:
+
+    curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/odt-engine
+
+    import { parseODT } from './odt-engine/dist/index.js';
+
+Swap odt-engine for ods-engine or odp-engine in the command and the import.
+
 ## Usage
 
-    import { parseODT } from 'odt-engine';
+    import { parseODT } from './odt-engine/dist/index.js';
 
     const doc = await parseODT(file);
     document.querySelector('#preview').innerHTML = doc.toHTML();

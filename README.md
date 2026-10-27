@@ -10,38 +10,36 @@ Three zero-dependency JavaScript engines for reading OpenDocument files in the b
 | [`ods-engine`](packages/ods-engine) | OpenDocument Spreadsheet (`.ods`) | `parseODS`, `toAST`, `toMatrix`, `toCSV`, `toJSON`, `toHTML` |
 | [`odp-engine`](packages/odp-engine) | OpenDocument Presentation (`.odp`) | `parseODP`, `toAST`, `toHTML`, `toMarkdown` |
 
-Install only the format you need. Every package is self-contained, tree-shakeable and has an empty `dependencies` map.
+Take only the format you need. Every engine is self-contained, tree-shakeable and has an empty `dependencies` map. There is no install step and no build step: the tested ESM bundle is committed in each package's `dist/`.
 
-The packages are not published to npm yet. Build them from this repository, then install a package folder from your app:
+**Load it from a URL.** jsDelivr mirrors the repository; GitHub Pages serves the same bytes:
 
-```bash
-git clone https://github.com/Spuds0588/OpenDocument-Engine-Suite.git
-cd OpenDocument-Engine-Suite
-npm install
-npm run build
-
-# from your app
-npm install /path/to/OpenDocument-Engine-Suite/packages/odt-engine
-```
-
-Or skip npm and load the committed ESM bundle directly. The same file is served from GitHub Pages and mirrored by jsDelivr:
-
-| Package | GitHub Pages | jsDelivr |
+| Package | jsDelivr | GitHub Pages |
 | --- | --- | --- |
-| `odt-engine` | [dist/index.js](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js) | [mirror](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js) |
-| `ods-engine` | [dist/index.js](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js) | [mirror](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/ods-engine/dist/index.js) |
-| `odp-engine` | [dist/index.js](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js) | [mirror](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odp-engine/dist/index.js) |
+| `odt-engine` | [dist/index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js) | [mirror](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js) |
+| `ods-engine` | [dist/index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/ods-engine/dist/index.js) | [mirror](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js) |
+| `odp-engine` | [dist/index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odp-engine/dist/index.js) | [mirror](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js) |
 
 ```js
-import { parseODT } from 'https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js';
+import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js';
 ```
 
-Both URLs point at the same build. `@main` tracks the latest commit; pin a tag or commit SHA for a frozen copy. The bundles are standalone ES modules with no runtime dependencies.
+**Or copy one engine into your project** with a single command. This unpacks `odt-engine/` (bundle, source, tests, package manifest) into the current directory, with no clone and no build:
+
+```bash
+curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/odt-engine
+```
+
+```js
+import { parseODT } from './odt-engine/dist/index.js';
+```
+
+Swap `odt-engine` for `ods-engine` or `odp-engine` in either path. `@main` tracks the latest build; a commit SHA or tag freezes a copy.
 
 ## Quick start
 
 ```js
-import { parseODT } from 'odt-engine';
+import { parseODT } from './odt-engine/dist/index.js';
 
 const file = document.querySelector('input[type=file]').files[0];
 const doc = await parseODT(file);
@@ -54,7 +52,7 @@ doc.destroy(); // revoke Blob URLs for embedded images
 Spreadsheets and presentations follow the same shape:
 
 ```js
-import { parseODS } from 'ods-engine';
+import { parseODS } from './ods-engine/dist/index.js';
 const workbook = await parseODS(file);
 workbook.toJSON('Sales');   // records keyed by the header row
 workbook.toCSV('Sales');    // RFC 4180, CRLF records
@@ -62,7 +60,7 @@ workbook.toHTML();          // landscape, one section per sheet
 ```
 
 ```js
-import { parseODP } from 'odp-engine';
+import { parseODP } from './odp-engine/dist/index.js';
 const deck = await parseODP(file);
 deck.toHTML();              // absolutely positioned slides, one per printed page
 deck.toMarkdown();          // slide transcript
@@ -73,7 +71,7 @@ deck.toMarkdown();          // slide transcript
 Each `toHTML()` returns a complete HTML document with CSS Paged Media rules (`@page`, page breaks, physical page dimensions). Render it in an isolated iframe and let the browser's print dialog create the PDF:
 
 ```js
-import { parseODT, triggerPrintToPDF } from 'odt-engine';
+import { parseODT, triggerPrintToPDF } from './odt-engine/dist/index.js';
 
 const doc = await parseODT(file);
 triggerPrintToPDF(doc.toHTML());
@@ -114,15 +112,15 @@ test/helpers/      ZIP writer, ODF fixture and shared benchmark builders
 
 ```bash
 npm install
-npm test              # 113 node:test cases for core and all three engines
-npm run test:browser  # build, then 13 checks in headless Chrome
+npm test              # 116 node:test cases for core and all three engines
+npm run test:browser  # build, then 15 checks in headless Chrome
 npm run build         # minified standalone ESM bundles in packages/*/dist
 npm run bench         # 5 MB parse benchmark (Node + jsdom)
 npm run bench:browser # 5 MB parse benchmark in headless Chrome
 npm run check         # tests, build, dist smoke test and browser suite
 ```
 
-Tests build real `.odt`, `.ods` and `.odp` containers in memory (including deflated entries and repeat counters) and run the parsers against them. The Node suite uses jsdom for `DOMParser`; the browser suite loads the built bundles in Chrome and checks the real DOM, Blob URL lifecycle and parse speed. `npm run check` therefore needs Chrome installed (or `CHROME_PATH` set); `playwright-core` drives it and is a dev dependency only. See [AGENTS.md](AGENTS.md) for conventions, [todo.md](todo.md) for open work and [history.md](history.md) for what changed.
+Tests build real `.odt`, `.ods` and `.odp` containers in memory (including deflated entries and repeat counters) and run the parsers against them, plus a handful of producer-written documents in `test/fixtures/real/` (see its README for provenance and checksums). The Node suite uses jsdom for `DOMParser`; the browser suite loads the built bundles in Chrome and checks the real DOM, Blob URL lifecycle and parse speed. `npm run check` therefore needs Chrome installed (or `CHROME_PATH` set); `playwright-core` drives it and is a dev dependency only. See [AGENTS.md](AGENTS.md) for conventions, [todo.md](todo.md) for open work and [history.md](history.md) for what changed.
 
 ## Browser support
 
@@ -134,7 +132,9 @@ The product requirements set a target of 15 KB minified / 5 KB gzipped per engin
 
 ## Performance
 
-`npm run bench:browser` runs the real-browser benchmark: roughly 5 MB of XML per engine, one warm-up parse, then seven timed parses with a forced collection between runs; the median is reported. On headless Chrome 155 the current numbers are **122–128 ms for ODT, 194–195 ms for ODS and 196–201 ms for ODP** against the PRD's 150 ms target. ODT meets the target; ODS and ODP do not. Chrome's own XML parsing accounts for roughly 35–47% of the remaining samples, so closing that gap needs a streaming or non-DOM parser rather than another traversal tweak.
+`npm run bench:browser` runs the real-browser benchmark: roughly 5 MB of XML per engine, one warm-up parse, then seven timed parses with a forced collection between runs; the median is reported. On headless Chrome 155 the current numbers are **122–128 ms for ODT, 194–195 ms for ODS and 196–201 ms for ODP** against the PRD's 150 ms target. ODT meets the target; ODS and ODP do not, and a CPU profile shows why: with the container already in memory, decompression takes 13–15 ms and Chrome's own `DOMParser` takes 62 ms (ODT), 112 ms (ODS) and 121 ms (ODP), which is 33–43% of each run. Native parsing and decompression alone are 125 ms (ODS) and 134 ms (ODP) of the 150 ms budget, so the remaining gap needs a streaming, non-DOM parser rather than another traversal tweak. `todo.md` records the decision.
+
+`npm run test:browser` also measures memory: 40 parse + `toHTML` + `destroy` cycles over an 18 KB document with 120 images retain **about 380 KB** of heap, and the last cycle's image Blob URLs are revoked, so repeated parsing and teardown return to a flat baseline.
 
 `npm run bench` keeps the conservative Node 20 + jsdom measurement for comparison: about **949 ms (ODT), 1435 ms (ODS) and 1461 ms (ODP)** for three runs. jsdom is roughly 7x slower than Chrome on these fixtures, so browser numbers are the ones that matter for frontend use.
 

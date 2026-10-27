@@ -133,7 +133,7 @@
           "name": "Can I convert an OpenDocument file to PDF?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. toHTML() returns a complete HTML document with CSS Paged Media rules. Pass it to triggerPrintToPDF or load it in an iframe and call print; the browser produces the PDF."
+            "text": "Yes. toHTML() returns a complete HTML document with CSS Paged Media rules. Pass it to triggerPrintToPDF or load it in an iframe and call print(); the browser produces the PDF."
           }
         },
         {
@@ -165,7 +165,7 @@
           "name": "Can I use the libraries without npm or a build step?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. The built ESM bundles are served from GitHub Pages and mirrored by jsDelivr. Import the URL directly, or try both hosts with a dynamic import fallback."
+            "text": "Yes. Each engine is a standalone ES module. Import it straight from jsDelivr or GitHub Pages, or unpack one engine folder into your project with a single curl command. Nothing is installed and nothing is built."
           }
         }
       ]
@@ -208,7 +208,7 @@
       <div><dt>Runtime dependencies</dt><dd>0</dd></div>
       <div><dt>Minified per engine</dt><dd>17–23 KB</dd></div>
       <div><dt>Formats</dt><dd>ODT · ODS · ODP</dd></div>
-      <div><dt>Automated checks</dt><dd>126</dd></div>
+      <div><dt>Automated checks</dt><dd>131</dd></div>
     </dl>
   </section>
 
@@ -221,7 +221,7 @@
     <div class="section-head">
       <p class="section-label">01 / Formats</p>
       <h2>Parse ODT, ODS and ODP in JavaScript</h2>
-      <p>One engine per file type. Install only what you need; every package is standalone ESM, tree-shakeable and keeps <code>"dependencies": {}</code>.</p>
+      <p>One engine per file type. Load only what you need; every engine is standalone ESM, tree-shakeable and keeps <code>"dependencies": {}</code>.</p>
     </div>
 
     <div class="cards">
@@ -272,32 +272,16 @@
   <section id="install" class="section wrap">
     <div class="section-head">
       <p class="section-label">02 / Use it</p>
-      <h2>From file to markup</h2>
-      <p>Build the packages from the repository, then import the ESM bundles from <code>dist</code>.</p>
+      <h2>Load it, or copy it in one command</h2>
+      <p>Each engine is one standalone ES module. Import it from a URL, or unpack the engine you need into your project without a clone or a build step.</p>
     </div>
 
     <div class="install-grid">
       <div class="install-col">
-        <p class="note"><strong>Status:</strong> the packages are not published to npm yet. Clone the repository and build the bundles first; npm publication is pending.</p>
-        <figure class="code">
-          <figcaption><span>terminal</span><button class="copy" type="button">Copy</button></figcaption>
-          <pre><code>git clone https://github.com/Spuds0588/OpenDocument-Engine-Suite.git
-cd OpenDocument-Engine-Suite
-npm install
-npm run build</code></pre>
-        </figure>
-        <p class="step">Then install a package folder into your app, or copy its <code>dist/</code> directory:</p>
-        <figure class="code">
-          <figcaption><span>terminal</span><button class="copy" type="button">Copy</button></figcaption>
-          <pre><code>npm install /path/to/OpenDocument-Engine-Suite/packages/odt-engine</code></pre>
-        </figure>
-      </div>
-
-      <div class="install-col">
-        <p class="step">Drop the file into the parser and choose an output. The same object shape works for all three engines.</p>
+        <p class="note"><strong>Load it:</strong> import the committed bundle from a URL. No install, no build, no bundler, and the file never reaches your server.</p>
         <figure class="code">
           <figcaption><span>app.js</span><button class="copy" type="button">Copy</button></figcaption>
-          <pre><code>import { parseODT } from 'odt-engine';
+          <pre><code>import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js';
 
 const file = document.querySelector('input[type=file]').files[0];
 const doc = await parseODT(file);
@@ -308,20 +292,37 @@ console.log(doc.toMarkdown());
 doc.destroy(); // release Blob URLs for embedded images</code></pre>
         </figure>
         <figure class="code">
-          <figcaption><span>spreadsheets &amp; slides</span><button class="copy" type="button">Copy</button></figcaption>
-          <pre><code>import { parseODS } from 'ods-engine';
+          <figcaption><span>spreadsheets</span><button class="copy" type="button">Copy</button></figcaption>
+          <pre><code>import { parseODS } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/ods-engine/dist/index.js';
 
 const book = await parseODS(file);
 book.toJSON('Sales');  // records keyed by the header row
 book.toCSV('Sales');   // RFC 4180, CRLF records
 book.toHTML();         // printable workbook</code></pre>
         </figure>
+        <p class="step">The same shape works for <code>odp-engine</code>: drop the file into the parser and choose an output.</p>
+      </div>
+
+      <div class="install-col">
+        <p class="step">Or copy just the engine you need into your project with one command. It unpacks <code>odt-engine/</code> (bundle, source, tests, manifest) into the current directory, with no clone and no build:</p>
+        <figure class="code">
+          <figcaption><span>terminal</span><button class="copy" type="button">Copy</button></figcaption>
+          <pre><code>curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/odt-engine</code></pre>
+        </figure>
+        <p class="step">Then import the tested bundle from the folder it created:</p>
+        <figure class="code">
+          <figcaption><span>app.js</span><button class="copy" type="button">Copy</button></figcaption>
+          <pre><code>import { parseODT } from './odt-engine/dist/index.js';
+
+const doc = await parseODT(file);</code></pre>
+        </figure>
+        <p class="step">Swap <code>odt-engine</code> for <code>ods-engine</code> or <code>odp-engine</code> in the command; <code>dist/index.js</code> is the tested bundle, so there is nothing to build.</p>
       </div>
     </div>
 
     <div class="cdn">
-      <h3>Or load the bundle directly</h3>
-      <p>Each package ships a standalone ESM bundle in <code>dist/</code>, committed with the source. Import the URL and skip npm and the build step. Both hosts serve the same file.</p>
+      <h3>Both hosts serve the same file</h3>
+      <p>Each engine ships a standalone ESM bundle in <code>dist/</code>, committed with the source. GitHub Pages and jsDelivr serve the same bytes; import either URL.</p>
       <div class="table-wrap">
         <table class="mirrors">
           <caption class="visually-hidden">Direct ESM bundle URLs by engine and host</caption>
@@ -475,7 +476,8 @@ const { parseODT } = engine;</code></pre>
         </tbody>
       </table>
     </div>
-    <p class="fineprint">Chrome 155, October 2026. ODT meets the 150 ms target for this 5 MB fixture; ODS and ODP are still above it. Under Node 20 with jsdom the same fixtures take roughly 0.95 s, 1.44 s and 1.46 s. The <a href="https://github.com/Spuds0588/OpenDocument-Engine-Suite/blob/main/history.md" rel="noopener">history</a> records the methodology and the changes behind these numbers.</p>
+    <p class="fineprint">Chrome 155, October 2026. ODT meets the 150 ms target for this 5 MB fixture; ODS and ODP are still above it, and a CPU profile shows why: decompressing the container takes 13–15 ms and the browser's own XML parser takes 62 ms (ODT), 112 ms (ODS) and 121 ms (ODP), so native parsing plus decompression alone is 125 ms and 134 ms of the 150 ms budget for the spreadsheet and presentation engines. Closing that needs a streaming parser instead of the browser's DOM. Under Node 20 with jsdom the same fixtures take roughly 0.95 s, 1.44 s and 1.46 s. The <a href="https://github.com/Spuds0588/OpenDocument-Engine-Suite/blob/main/history.md" rel="noopener">history</a> records the methodology and the changes behind these numbers.</p>
+    <p class="fineprint">Repeated use stays flat: 40 parse, render and <code>destroy()</code> cycles on an 18 KB document with 120 images retain about 380 KB of heap in Chrome, and the image Blob URLs are revoked each time.</p>
   </section>
 
   <section id="faq" class="section wrap">
@@ -515,7 +517,7 @@ const { parseODT } = engine;</code></pre>
       </article>
       <article>
         <h3>Can I use the libraries without npm or a build step?</h3>
-        <p>Yes. The built ESM bundles are served from GitHub Pages and mirrored by jsDelivr. Import the URL directly, or try both hosts with a dynamic import fallback.</p>
+        <p>Yes. Each engine is a standalone ES module. Import it straight from jsDelivr or GitHub Pages, or unpack one engine folder into your project with a single <code>curl</code> command. Nothing is installed and nothing is built.</p>
       </article>
     </div>
   </section>
@@ -523,9 +525,9 @@ const { parseODT } = engine;</code></pre>
   <section class="wrap cta">
     <p class="section-label">Start here</p>
     <h2>Read the format. Keep the structure.</h2>
-    <p>Clone the repository, build the three bundles, and parse your first file without a server.</p>
+    <p>Load an engine from a URL or copy one into your project in a single command, then parse your first file without a server.</p>
     <div class="hero-actions">
-      <a class="button button-primary" href="#install">Install from source</a>
+      <a class="button button-primary" href="#install">See how to load it</a>
       <a class="button" href="https://github.com/Spuds0588/OpenDocument-Engine-Suite" rel="noopener">Browse the repository <span aria-hidden="true">↗</span></a>
     </div>
   </section>
