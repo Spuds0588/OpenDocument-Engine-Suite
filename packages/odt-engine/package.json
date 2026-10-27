@@ -1,6 +1,6 @@
 {
   "name": "odt-engine",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Zero-dependency OpenDocument Text (.odt) parser for the browser: AST, HTML, PDF-ready print output and Markdown.",
   "type": "module",
   "license": "MIT",

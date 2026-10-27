@@ -1,61 +1,74 @@
 # ODF Suite
 
-> ODF Suite is three zero-dependency JavaScript libraries that parse OpenDocument files entirely in the browser. odt-engine reads .odt text documents, ods-engine reads .ods spreadsheets, and odp-engine reads .odp presentations.
+> ODF Suite is three zero-dependency JavaScript libraries that read OpenDocument files entirely in the browser: odt-engine for .odt text documents, ods-engine for .ods spreadsheets and odp-engine for .odp presentations. Each library is one self-contained ES module of 17-23 KB that is loaded from a URL or copied into a project as a single file. There is no install step, no build step and no server.
 
 ## Packages
 
-- [odt-engine](https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odt-engine): parses .odt headings, styled runs, links, lists, tables and images. Exports a JSON AST, print-ready HTML, Markdown and plain text.
-- [ods-engine](https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/ods-engine): parses .ods typed cells, formulas, dates, booleans, percentages, merged cells and column widths. Exports a typed matrix, RFC 4180 CSV, header-keyed JSON and landscape print HTML.
-- [odp-engine](https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odp-engine): parses .odp slides, frame geometry, text, bullets, shapes, images and master backgrounds. Exports positioned slide HTML and a Markdown transcript.
+- [odt-engine](https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odt-engine): reads .odt headings, styled runs, links, lists, tables and images. Exports a JSON AST, print-ready HTML, Markdown and plain text.
+- [ods-engine](https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/ods-engine): reads .ods typed cells, formulas, dates, booleans, percentages, merged cells and column widths. Exports a typed matrix, RFC 4180 CSV, header-keyed JSON and landscape print HTML.
+- [odp-engine](https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odp-engine): reads .odp slides, frame geometry, text, bullets, shapes, images and master backgrounds. Exports positioned slide HTML and a Markdown transcript.
 
 ## Quick facts
 
-- Input: File, Blob, ArrayBuffer or Uint8Array.
-- Runtime dependencies: none. Every package has an empty dependencies map.
-- Output: HTML with CSS Paged Media, Markdown, plain text, CSV, JSON and a JSON AST.
-- Current minified sizes: odt-engine 23.35 KB (8.97 KB gzip), ods-engine 17.17 KB (7.05 KB gzip), odp-engine 18.78 KB (7.69 KB gzip).
-- Browser parse benchmark: about 5 MB of XML in headless Chrome 155, median of seven runs after warm-up. ODT 122-128 ms, ODS 194-195 ms, ODP 196-201 ms. The target is 150 ms; ODT meets it, ODS and ODP do not. A CPU profile attributes 13-15 ms to decompression and 62 / 112 / 121 ms to the browser's own XML parser, so native parsing plus decompression alone is 125 ms and 134 ms of the 150 ms budget for ODS and ODP.
-- Memory: 40 parse, render and destroy cycles over an 18 KB document with 120 images retain about 380 KB of heap in Chrome, with image Blob URLs revoked each cycle.
-- Verification: 116 Node tests and 15 browser checks, including five producer-written documents (LibreOffice, StarOffice, OpenOffice.org) under test/fixtures/real.
-- Node 20 with jsdom takes about 0.95 s (ODT), 1.44 s (ODS) and 1.46 s (ODP) for the same fixtures.
+- Size: one file per library. odt-engine 23.35 KB minified (8.97 KB gzipped), ods-engine 17.17 KB (7.05 KB), odp-engine 18.78 KB (7.69 KB).
+- Runtime dependencies: none. Every library has an empty dependencies map.
+- Input: File, Blob, ArrayBuffer or Uint8Array. Output: HTML with CSS Paged Media, Markdown, plain text, CSV, JSON and a JSON AST.
+- Delivery: jsDelivr and GitHub Pages serve the same bytes, pinned to the v1.0.0 releases; copying one library into a project is a single curl command.
+- Browser parse benchmark: about 5 MB of XML in headless Chrome 155, median of seven timed runs after warm-up. ODT 122-128 ms, ODS 194-195 ms, ODP 196-201 ms. Most of the time is the browser's own XML parser (62 ms for ODT, 112-121 ms for ODS and ODP) plus 13-15 ms of decompression.
+- Memory: 40 parse, render and destroy cycles over an 18 KB document with 120 images move the retained heap by less than 1 MB, with image Blob URLs revoked every cycle.
+- Verification: 116 Node tests and 15 browser checks, including five documents written by LibreOffice, StarOffice and OpenOffice.org.
 - Browser support: Chrome 80+, Edge 80+, Firefox 113+, Safari 16.4+, or any runtime with DecompressionStream, DOMParser and Blob URLs.
+- Not published to npm. Distribution is a URL import or a single-file download.
 - License: MIT.
-- Distribution: not published to npm. Each engine is a standalone ESM bundle committed at packages/<engine>/dist/index.js, ready to import from a URL or copy with one command.
 
-## Load an engine
+## Load a library
 
-Each committed bundle is a standalone ES module, served from GitHub Pages and mirrored by jsDelivr:
+Install nothing. Import the release URL:
 
-- odt-engine: https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js | https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js
-- ods-engine: https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js | https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/ods-engine/dist/index.js
-- odp-engine: https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js | https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odp-engine/dist/index.js
+    import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
 
-Import a URL directly:
+Or add it to the head of a page (type="module" is required; module scripts are deferred, so the DOM is ready):
 
-    import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js';
+    <head>
+      <script type="module">
+        import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
 
-Both hosts serve the same file. `@main` tracks the latest build; replace it with a commit SHA or tag for a frozen copy. To survive one host being unavailable, try the URLs in order with `await import(url)` and a `try/catch`.
+        const input = document.querySelector('input[type=file]');
+        input.addEventListener('change', async () => {
+          const doc = await parseODT(input.files[0]);
+          document.querySelector('#preview').innerHTML = doc.toHTML();
+        });
+      </script>
+    </head>
 
-## Copy one engine into a project
+GitHub Pages serves the same bytes:
 
-One command unpacks the engine folder (bundle, source, tests, manifest) into the current directory; no clone, no install and no build step:
+- odt-engine: https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js
+- ods-engine: https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js
+- odp-engine: https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js
 
-    curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/odt-engine
+Replace the release tag with `main` to follow the newest build. To survive one host being unavailable, try the URLs in order with `await import(url)` and a `try/catch`.
 
-    import { parseODT } from './odt-engine/dist/index.js';
+## Copy one library into a project
 
-Swap odt-engine for ods-engine or odp-engine in the command and the import.
+One command downloads the complete library:
+
+    curl -sLo odt-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js
+
+    import { parseODT } from './odt-engine.js';
+
+Swap odt-engine for ods-engine or odp-engine in the command. Nothing else has to be downloaded, installed or kept in sync; TypeScript declarations are at dist/index.d.ts next to each bundle.
 
 ## Usage
 
-    import { parseODT } from './odt-engine/dist/index.js';
+    import { parseODT } from './odt-engine.js';
 
     const doc = await parseODT(file);
     document.querySelector('#preview').innerHTML = doc.toHTML();
     console.log(doc.toMarkdown());
     doc.destroy();
 
-Spreadsheets use parseODS and expose toMatrix, toCSV, toJSON and toHTML. Presentations use parseODP and expose toHTML and toMarkdown. Call destroy() to revoke Blob URLs created for embedded images.
+Spreadsheets use parseODS and expose toMatrix, toCSV, toJSON and toHTML. Presentations use parseODP and expose toHTML and toMarkdown. Call destroy() to revoke Blob URLs created for embedded images. Printing to PDF uses the browser: toHTML() returns a complete document with CSS Paged Media rules, and triggerPrintToPDF(html) opens the print dialog in an off-screen iframe.
 
 ## Limitations
 
@@ -69,6 +82,8 @@ Spreadsheets use parseODS and expose toMatrix, toCSV, toJSON and toHTML. Present
 
 ## Links
 
+- Live documentation: https://spuds0588.github.io/OpenDocument-Engine-Suite/
 - Source: https://github.com/Spuds0588/OpenDocument-Engine-Suite
+- Releases: https://github.com/Spuds0588/OpenDocument-Engine-Suite/releases
 - README: https://github.com/Spuds0588/OpenDocument-Engine-Suite/blob/main/README.md
-- History and benchmark methodology: https://github.com/Spuds0588/OpenDocument-Engine-Suite/blob/main/history.md
+- Benchmark methodology and history: https://github.com/Spuds0588/OpenDocument-Engine-Suite/blob/main/history.md

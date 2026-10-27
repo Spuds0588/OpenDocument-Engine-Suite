@@ -15,8 +15,8 @@ dependencies:
 
 `packages/core` is an internal package. Its source is statically bundled into
 each engine by esbuild; it is never published on its own. The PRD in
-`PRD-OpenDocument Engine Suite.md` is the product contract. `todo.md` is the
-current work queue. `history.md` records what is already done.
+`PRD-OpenDocument Engine Suite.md` is the product contract. `history.md` records
+what is already done, including the decisions behind the current targets.
 
 ## Working principles
 
@@ -81,7 +81,13 @@ dependencies only.
   Pages and jsDelivr serve those bundles directly. Run `npm run build` before
   committing a source change and include the refreshed `dist`; the URLs on the
   landing page and in the READMEs must keep resolving. `@main` URLs follow the
-  latest build, so publish a tag or commit SHA when a frozen copy is needed.
+  latest build, so each release is tagged `<engine>-v<version>` (for example
+  `odt-engine-v1.0.0`) on the commit that contains its built bundle, and the
+  READMEs link that tag.
+- **The audience is a consumer, not a contributor.** People load one bundle
+  from a URL or copy that single file; keep consumer docs free of install,
+  build, test and internal-plan wording, and keep those details here or in
+  `history.md`.
 - **ESM only.** `"type": "module"`, no CommonJS build, no transpiler in the
   source path.
 
@@ -136,16 +142,18 @@ dependencies only.
 
 ## Size policy
 
-The PRD target is 15 KB minified / 5 KB gzipped per engine. It is not met yet
-(see `README.md`). The build reports the gap and enforces a regression cap, so
-do not hide growth. When reducing size, remove work rather than minifier tricks,
-and keep the behavior covered by tests.
+The PRD target is 15 KB minified / 5 KB gzipped per engine. It is not met: the
+shipped bundles are 23.35 / 17.17 / 18.78 KB (8.97 / 7.05 / 7.69 KB gzipped)
+with every specified feature implemented. The build reports the gap and
+enforces a 24 KB / 10 KB regression cap, so do not hide growth. When reducing
+size, remove work rather than minifier tricks, and keep the behavior covered by
+tests.
 
 ## Definition of done
 
 1. The requested behavior is implemented, with no extra features.
 2. `npm test` passes; new behavior has a focused test.
 3. `npm run check` passes if source or build inputs changed.
-4. `README.md` / `history.md` / `todo.md` are updated when the state changes.
+4. `README.md` and `history.md` are updated when the state changes.
 5. `git status` shows only intentional changes, and no process or scratch file
    from the task is left running.

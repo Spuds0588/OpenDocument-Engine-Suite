@@ -6,28 +6,44 @@ Keywords: read ods file in browser, ods to json javascript, lightweight ods pars
 
 ## Use it
 
-**Load the bundle from a URL.** jsDelivr mirrors the repository and GitHub Pages serves the same bytes:
+One file, no install. Import it from a URL:
 
 ```js
-import { parseODS } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/ods-engine/dist/index.js';
+import { parseODS } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/index.js';
 ```
 
-**Or copy this engine into your project** with one command. It unpacks `ods-engine/` into the current directory, with no clone and no build:
+Load it in the `<head>` of a page. `type="module"` is required and module scripts are deferred, so the DOM is ready when the code runs:
+
+```html
+<head>
+  <script type="module">
+    import { parseODS } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/index.js';
+
+    const input = document.querySelector('input[type=file]');
+    input.addEventListener('change', async () => {
+      const workbook = await parseODS(input.files[0]);
+      document.querySelector('#preview').innerHTML = workbook.toHTML();
+    });
+  </script>
+</head>
+```
+
+Or copy the library into your project with one command:
 
 ```bash
-curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/ods-engine
+curl -sLo ods-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/index.js
 ```
 
 ```js
-import { parseODS } from './ods-engine/dist/index.js';
+import { parseODS } from './ods-engine.js';
 ```
 
-GitHub Pages mirror: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build. `dist/index.js` is the tested bundle, so neither path needs a build step.
+GitHub Pages serves the same bytes: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js`. Swap the release tag for `main` to follow the newest build. The download is the complete library, 17.17 KB minified / 7.05 KB gzipped, with its types in `dist/index.d.ts`.
 
 ## Quick start
 
 ```js
-import { parseODS } from './ods-engine/dist/index.js';
+import { parseODS } from './ods-engine.js';
 
 const workbook = await parseODS(file);
 
@@ -87,7 +103,7 @@ Headers are de-duplicated (`Name`, `Name_2`) and blank headers become `Column1`,
 `toHTML()` produces one `<section>` per sheet with `@page { size: A4 landscape; margin: 10mm }`, table rows that avoid splitting across pages, and page breaks between sheets. Send it through the browser print pipeline:
 
 ```js
-import { parseODS, triggerPrintToPDF } from 'ods-engine';
+import { parseODS, triggerPrintToPDF } from './ods-engine.js';
 
 triggerPrintToPDF((await parseODS(file)).toHTML());
 ```

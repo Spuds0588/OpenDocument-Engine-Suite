@@ -6,28 +6,44 @@ Keywords: javascript parse odt, browser odt to pdf, convert odt to html in the b
 
 ## Use it
 
-**Load the bundle from a URL.** jsDelivr mirrors the repository and GitHub Pages serves the same bytes:
+One file, no install. Import it from a URL:
 
 ```js
-import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js';
+import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
 ```
 
-**Or copy this engine into your project** with one command. It unpacks `odt-engine/` into the current directory, with no clone and no build:
+Load it in the `<head>` of a page. `type="module"` is required and module scripts are deferred, so the DOM is ready when the code runs:
+
+```html
+<head>
+  <script type="module">
+    import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
+
+    const input = document.querySelector('input[type=file]');
+    input.addEventListener('change', async () => {
+      const doc = await parseODT(input.files[0]);
+      document.querySelector('#preview').innerHTML = doc.toHTML();
+    });
+  </script>
+</head>
+```
+
+Or copy the library into your project with one command:
 
 ```bash
-curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/odt-engine
+curl -sLo odt-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js
 ```
 
 ```js
-import { parseODT } from './odt-engine/dist/index.js';
+import { parseODT } from './odt-engine.js';
 ```
 
-GitHub Pages mirror: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build. `dist/index.js` is the tested bundle, so neither path needs a build step.
+GitHub Pages serves the same bytes: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js`. Swap the release tag for `main` to follow the newest build. The download is the complete library, 23.35 KB minified / 8.97 KB gzipped, with its types in `dist/index.d.ts`.
 
 ## Quick start
 
 ```js
-import { parseODT } from './odt-engine/dist/index.js';
+import { parseODT } from './odt-engine.js';
 
 const input = document.querySelector('input[type=file]');
 input.addEventListener('change', async () => {
@@ -48,7 +64,7 @@ input.addEventListener('change', async () => {
 `toHTML()` emits a complete HTML document with `@page { size; margin }` rules sized from the document's ODF page layout. Pass it to the bundled iframe helper:
 
 ```js
-import { parseODT, triggerPrintToPDF } from 'odt-engine';
+import { parseODT, triggerPrintToPDF } from './odt-engine.js';
 
 const doc = await parseODT(file);
 triggerPrintToPDF(doc.toHTML()); // opens the browser print dialog

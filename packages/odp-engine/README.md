@@ -6,28 +6,44 @@ Keywords: javascript parse odp slides, odp presentation viewer js, libreoffice i
 
 ## Use it
 
-**Load the bundle from a URL.** jsDelivr mirrors the repository and GitHub Pages serves the same bytes:
+One file, no install. Import it from a URL:
 
 ```js
-import { parseODP } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odp-engine/dist/index.js';
+import { parseODP } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/index.js';
 ```
 
-**Or copy this engine into your project** with one command. It unpacks `odp-engine/` into the current directory, with no clone and no build:
+Load it in the `<head>` of a page. `type="module"` is required and module scripts are deferred, so the DOM is ready when the code runs:
+
+```html
+<head>
+  <script type="module">
+    import { parseODP } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/index.js';
+
+    const input = document.querySelector('input[type=file]');
+    input.addEventListener('change', async () => {
+      const deck = await parseODP(input.files[0]);
+      document.querySelector('#preview').innerHTML = deck.toHTML();
+    });
+  </script>
+</head>
+```
+
+Or copy the library into your project with one command:
 
 ```bash
-curl -sL https://github.com/Spuds0588/OpenDocument-Engine-Suite/archive/refs/heads/main.tar.gz | tar -xz --strip-components=2 OpenDocument-Engine-Suite-main/packages/odp-engine
+curl -sLo odp-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/index.js
 ```
 
 ```js
-import { parseODP } from './odp-engine/dist/index.js';
+import { parseODP } from './odp-engine.js';
 ```
 
-GitHub Pages mirror: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build. `dist/index.js` is the tested bundle, so neither path needs a build step.
+GitHub Pages serves the same bytes: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js`. Swap the release tag for `main` to follow the newest build. The download is the complete library, 18.78 KB minified / 7.69 KB gzipped, with its types in `dist/index.d.ts`.
 
 ## Quick start
 
 ```js
-import { parseODP } from './odp-engine/dist/index.js';
+import { parseODP } from './odp-engine.js';
 
 const deck = await parseODP(file);
 
@@ -93,7 +109,7 @@ Element order is z-order: later elements paint over earlier ones. Groups are fla
 Each slide is a fixed-size, `page-break-after: always` page inside the generated document, with `@page { size; margin: 0 }` set to the deck dimensions.
 
 ```js
-import { parseODP, triggerPrintToPDF } from 'odp-engine';
+import { parseODP, triggerPrintToPDF } from './odp-engine.js';
 
 triggerPrintToPDF((await parseODP(file)).toHTML());
 ```

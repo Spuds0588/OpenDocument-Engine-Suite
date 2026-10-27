@@ -1,6 +1,6 @@
 {
   "name": "ods-engine",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Zero-dependency OpenDocument Spreadsheet (.ods) parser for the browser: typed cells, matrix, CSV, JSON and print-ready HTML.",
   "type": "module",
   "license": "MIT",

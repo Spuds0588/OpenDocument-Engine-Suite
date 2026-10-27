@@ -1,6 +1,6 @@
 {
   "name": "odp-engine",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Zero-dependency OpenDocument Presentation (.odp) parser for the browser: absolute slide layout, print-ready deck HTML and Markdown transcript.",
   "type": "module",
   "license": "MIT",

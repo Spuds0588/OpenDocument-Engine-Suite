@@ -1,9 +1,43 @@
 # History
 
 Chronological record of what changed and why. Newest work goes at the top of
-its date. `todo.md` is the forward queue; `AGENTS.md` holds the working rules.
+its date. `AGENTS.md` holds the working rules and `README.md` describes the
+shipped libraries.
 
 ## 2026-10-27
+
+### v1.0 releases and single-file distribution
+
+- The three libraries are released as **1.0.0**: tags `odt-engine-v1.0.0`,
+  `ods-engine-v1.0.0` and `odp-engine-v1.0.0`, each with a GitHub Release. The
+  version field moved from 0.1.0 to 1.0.0 in the root and package manifests and
+  in the landing page's structured data.
+- Consumer docs were rewritten around the two things the audience actually
+  does: load one bundle from a URL, or copy that single file into a project.
+  `README.md`, the three package READMEs, `index.html` and `llms.txt` now show
+  the URL import, a `<script type="module">` example for the page head, and a
+  one-command `curl -sLo odt-engine.js <tag URL>` download of the complete
+  library. Unpacking a whole engine folder was dropped: the tests and build
+  inputs are not part of using the library. README URLs are pinned to the
+  release tags, with `@main` documented as the follow-the-latest option.
+- Internal-plan wording is gone from consumer surfaces. The "PRD target / not
+  met / needs a product decision / regression cap" notes were replaced by the
+  measured size and parse tables, the landing page no longer has a target
+  column, and the development section is down to the build and test commands.
+- `todo.md` was removed. Its queue was empty and the two open targets are
+  decisions, recorded here:
+  - **Distribution** is a URL import or a single-file download, not npm.
+    Revisit only if a registry release is requested.
+  - **Bundle size** stays at 23.35 / 17.17 / 18.78 KB (8.97 / 7.05 / 7.69 KB
+    gzipped) by choice: reaching 15 KB means dropping parser or renderer
+    features. The build still enforces the 24 KB / 10 KB regression cap.
+  - **Browser parse time** for ~5 MB is 122-128 ms (ODT) and 194-201 ms
+    (ODS/ODP) in Chrome 155. Native parsing plus decompression alone is 125 ms
+    (ODS) and 134 ms (ODP) of any 150 ms budget, so closing the gap needs a
+    streaming parser rather than tuning. Out of scope for v1.
+- `AGENTS.md` gained the release tagging rule (`<engine>-v<version>` on the
+  commit that carries the built bundle) and the rule that consumer docs stay
+  free of install, build and internal-plan wording.
 
 ### Distribution docs, memory baseline and real-world fixtures
 
@@ -18,9 +52,11 @@ its date. `todo.md` is the forward queue; `AGENTS.md` holds the working rules.
   parses an `.odt` fixture in Node.
 - Memory: the browser suite now runs 40 parse + `toHTML` + `destroy` cycles over
   an 18 KB document with 120 distinct images, forces collection and asserts the
-  retained heap stays under 8 MB. Measured retained heap: **+376 KB**, with the
-  last cycle's Blob URLs revoked. The driver prints the number, so a regression
-  shows up as a larger figure instead of a sudden failure.
+  retained heap stays under 8 MB. Measured retained heap: **+376 KB** on the
+  first run, +382 KB and -633 KB on later runs, which is flat within collection
+  noise; the last cycle's Blob URLs are always revoked. The driver prints the
+  number, so a regression shows up as a larger figure instead of a sudden
+  failure, and the docs quote the flat result rather than one sample.
 - Real producer output: five Apache-2.0 documents from the ODF Toolkit
   (`odfdom/src/test/resources/test-input/`) are committed under
   `test/fixtures/real` with source, license and SHA-256 recorded in that
@@ -47,7 +83,7 @@ its date. `todo.md` is the forward queue; `AGENTS.md` holds the working rules.
   and ODP, native parsing plus decompression alone (125 ms and 134 ms) is most
   of the 150 ms budget, so the target is unreachable without leaving the DOM
   parser behind. That position, and the unchanged 15 KB size gap, are now
-  recorded as decisions in `todo.md` rather than open work.
+  recorded as decisions in this history rather than open work.
 - Suite size after this pass: 116 Node tests and 15 browser checks.
 
 ### Direct-load bundles and mirrors
