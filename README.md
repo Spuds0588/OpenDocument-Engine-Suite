@@ -88,7 +88,7 @@ test/helpers/      ZIP writer and ODF fixture builders used by the suites
 
 ```bash
 npm install
-npm test          # 110 node:test cases for core and all three engines
+npm test          # 112 node:test cases for core and all three engines
 npm run build     # minified standalone ESM bundles in packages/*/dist
 npm run bench     # 5 MB parse benchmark for all three engines
 npm run check     # tests, build and dist smoke test
@@ -102,11 +102,11 @@ Chrome 80+, Edge 80+, Firefox 113+, Safari 16.4+ and any runtime with `Decompres
 
 ## Bundle size
 
-The product requirements set a target of 15 KB minified / 5 KB gzipped per engine. Current minified builds are 23.67 KB (ODT), 17.21 KB (ODS) and 18.86 KB (ODP), or 9.03 KB / 7.04 KB / 7.76 KB gzipped, so the target is **not yet met**. `npm run build` reports the gap for every engine and enforces a 24 KB / 10 KB regression cap. Splitting page/list styling out of the spreadsheet bundle cut ODS by about 9%; reaching 15 KB with the current feature set would require dropping parser or renderer features, which needs a product decision.
+The product requirements set a target of 15 KB minified / 5 KB gzipped per engine. Current minified builds are 23.55 KB (ODT), 17.19 KB (ODS) and 18.82 KB (ODP), or 9.02 KB / 7.01 KB / 7.73 KB gzipped, so the target is **not yet met**. `npm run build` reports the gap for every engine and enforces a 24 KB / 10 KB regression cap. Splitting page/list styling out of the spreadsheet bundle cut ODS by about 9%; reaching 15 KB with the current feature set would require dropping parser or renderer features, which needs a product decision.
 
 ## Performance
 
-`npm run bench` parses roughly 5 MB of document XML in each engine and reports the median of three runs. On Node 20 with jsdom (a conservative environment, not a browser) the current numbers are about 1.6 s for ODT, 4.3 s for ODS and 4.0 s for ODP, against the PRD's 150 ms target. The original superlinear lookup was removed: indexing a 1 MB ODT content tree dropped from 2.17 s to 0.40 s. Browser timing has not been measured yet.
+`npm run bench` parses roughly 5 MB of document XML in each engine and reports the median of three runs. On Node 20 with jsdom (a conservative environment, not a browser) the current numbers are about 0.96 s for ODT, 1.6 s for ODS and 1.5 s for ODP, against the PRD's 150 ms target. Two passes account for most of the gain: whole-document scans now follow `firstChild`/`nextSibling` instead of iterating jsdom's proxied `NodeList` (about 8x faster in isolation), and attribute reads use `getAttributeNames()` instead of the proxied `NamedNodeMap` (about 6x faster), with repeated spreadsheet cells read once per element rather than once per repeat. Combined with the earlier removal of the superlinear whole-document lookup, ODT parse time fell 40% and ODS/ODP roughly 63% from the first measurement. Browser timing has not been measured yet.
 
 ## Known limitations
 

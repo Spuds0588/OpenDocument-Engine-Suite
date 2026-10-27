@@ -153,10 +153,12 @@ function parseCells(rowElement) {
     if (name !== 'table-cell' && name !== 'covered-table-cell') continue;
 
     const repeat = clamp(numericAttribute(cellElement, 'number-columns-repeated', 1), LIMITS.maxCellRepeat);
-    const covered = name === 'covered-table-cell';
+    const style = getAttribute(cellElement, 'style-name') || '';
 
-    for (let index = 0; index < repeat; index++) {
-      if (covered) {
+    // The typed value, spans and style are per element, not per repeat, so they
+    // are read once even when a padded sheet repeats the cell thousands of times.
+    if (name === 'covered-table-cell') {
+      for (let index = 0; index < repeat; index++) {
         cells.push({
           value: null,
           rawText: '',
@@ -164,18 +166,18 @@ function parseCells(rowElement) {
           valueType: 'empty',
           colSpan: 1,
           rowSpan: 1,
-          style: getAttribute(cellElement, 'style-name') || '',
+          style,
           covered: true,
         });
-        continue;
       }
-      const typed = typedValue(cellElement);
-      cells.push({
-        ...typed,
-        colSpan: Math.max(numericAttribute(cellElement, 'number-columns-spanned', 1), 1),
-        rowSpan: Math.max(numericAttribute(cellElement, 'number-rows-spanned', 1), 1),
-        style: getAttribute(cellElement, 'style-name') || '',
-      });
+      continue;
+    }
+
+    const typed = typedValue(cellElement);
+    const colSpan = Math.max(numericAttribute(cellElement, 'number-columns-spanned', 1), 1);
+    const rowSpan = Math.max(numericAttribute(cellElement, 'number-rows-spanned', 1), 1);
+    for (let index = 0; index < repeat; index++) {
+      cells.push({ ...typed, colSpan, rowSpan, style });
     }
   }
 
@@ -206,7 +208,7 @@ function parseSheet(tableElement, styles) {
     }
 
     for (let index = 0; index < repeat && rows.length < LIMITS.maxRows; index++) {
-      rows.push(cells.map((cell) => ({ ...cell })));
+      rows.push(index === 0 && repeat === 1 ? cells : cells.map((cell) => ({ ...cell })));
     }
     if (rows.length >= LIMITS.maxRows) {
       log.warn(`Sheet "${name}" hit the ${LIMITS.maxRows}-row safety cap; remaining rows were skipped.`);

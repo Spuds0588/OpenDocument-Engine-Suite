@@ -39,7 +39,7 @@ current work queue. `history.md` records what is already done.
 
 ```bash
 npm install       # once per checkout
-npm test          # node:test, all packages (110 cases)
+npm test          # node:test, all packages (112 cases)
 npm run build     # minified standalone ESM bundles + declarations
 npm run smoke     # parse fixtures through the built dist bundles
 npm run bench     # 5 MB parse-time benchmark (Node + jsdom)
@@ -89,7 +89,12 @@ dependencies only.
 - Do not reintroduce `getElementsByTagName('*')` or other live HTMLCollection
   scans over a whole document. jsdom makes them superlinear and they caused a
   measured slowdown; use `getElementsByTag`, `getFirstElementByTag` or
-  `walkElements`, which traverse child nodes directly.
+  `walkElements`.
+- Do not iterate `childNodes` or `attributes` in whole-document loops. jsdom
+  proxies both collections and every indexed access is expensive; the helpers
+  in `packages/core/src/xml.js` walk `firstChild`/`nextSibling` and read
+  `getAttributeNames()`, which measured 6-8x faster. Attribute lookups are per
+  element, never per repeat counter iteration.
 - Build changes are checked with `npm run build` and `npm run smoke`; a bundle
   past the 24 KB / 10 KB regression cap fails the build.
 

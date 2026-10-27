@@ -103,7 +103,7 @@ function parseImageFrame(frame, ctx) {
 function parseInlineChildren(parent, ctx) {
   const nodes = [];
 
-  for (const node of parent.childNodes) {
+  for (let node = parent.firstChild; node; node = node.nextSibling) {
     if (node.nodeType === 3) {
       const content = normalizeText(node.nodeValue || '');
       if (content) nodes.push({ type: 'text', content });
@@ -112,25 +112,17 @@ function parseInlineChildren(parent, ctx) {
     if (node.nodeType !== 1) continue;
 
     switch (localNameOf(node)) {
-      case 'span': {
-        const children = parseInlineChildren(node, ctx);
-        nodes.push({
-          type: 'span',
-          style: getAttribute(node, 'style-name') || '',
-          content: children.map((child) => child.content || '').join(''),
-          children,
-        });
-        break;
-      }
+      case 'span':
       case 'a': {
         const children = parseInlineChildren(node, ctx);
-        nodes.push({
+        const item = {
           type: 'span',
           style: getAttribute(node, 'style-name') || '',
           content: children.map((child) => child.content || '').join(''),
           children,
-          href: getAttribute(node, 'href') || '',
-        });
+        };
+        if (localNameOf(node) === 'a') item.href = getAttribute(node, 'href') || '';
+        nodes.push(item);
         break;
       }
       case 'tab':
@@ -147,16 +139,13 @@ function parseInlineChildren(parent, ctx) {
       case 'frame':
       case 'image': {
         const imageNode = localNameOf(node) === 'image'
-          ? (() => {
-            const href = getAttribute(node, 'href') || '';
-            return {
-              type: 'image',
-              src: ctx.media.urlFor(href) || null,
-              width: '',
-              height: '',
-              alt: '',
-            };
-          })()
+          ? {
+            type: 'image',
+            src: ctx.media.urlFor(getAttribute(node, 'href') || '') || null,
+            width: '',
+            height: '',
+            alt: '',
+          }
           : parseImageFrame(node, ctx);
         if (imageNode) nodes.push(imageNode);
         break;
@@ -325,13 +314,21 @@ function parseTable(element, ctx) {
         children: parseBlocks(cellElement, ctx),
       };
 
-      for (let index = 0; index < repeat; index++) {
-        cells.push({ ...cell, children: cell.children.slice() });
+      if (repeat === 1) cells.push(cell);
+      else {
+        for (let index = 0; index < repeat; index++) {
+          cells.push({ ...cell, children: cell.children.slice() });
+        }
       }
     }
 
     for (let index = 0; index < rowRepeat; index++) {
-      rows.push({ style: rowStyle, cells: cells.map((cell) => ({ ...cell, children: cell.children.slice() })) });
+      rows.push({
+        style: rowStyle,
+        cells: index === 0 && rowRepeat === 1
+          ? cells
+          : cells.map((cell) => ({ ...cell, children: cell.children.slice() })),
+      });
     }
     columnCount = Math.max(columnCount, cells.length);
   }

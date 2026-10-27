@@ -117,6 +117,34 @@ test('keeps a three-row span aligned in the HTML grid', async () => {
   doc.destroy();
 });
 
+test('aligns a multi-row span in Markdown and plain-text tables', async () => {
+  const doc = await parseBody(`
+    <office:text>
+      <table:table>
+        <table:table-row>
+          <table:table-cell table:number-columns-spanned="2" table:number-rows-spanned="3"><text:p>Tall</text:p></table:table-cell>
+          <table:table-cell><text:p>B</text:p></table:table-cell>
+        </table:table-row>
+        <table:table-row>
+          <table:covered-table-cell/>
+          <table:table-cell><text:p>C</text:p></table:table-cell>
+        </table:table-row>
+        <table:table-row>
+          <table:table-cell><text:p>D</text:p></table:table-cell>
+        </table:table-row>
+      </table:table>
+    </office:text>`);
+
+  // A row span occupies its columns in the following rows, so C and D must
+  // start after the two columns covered by "Tall".
+  assert.match(
+    doc.toMarkdown(),
+    /\| Tall \|  \| B \|\n\| --- \| --- \| --- \|\n\|  \|  \| C \|\n\|  \|  \| D \|/,
+  );
+  assert.match(doc.toPlainText(), /Tall \|  \| B\n \|  \| C\n \|  \| D/);
+  doc.destroy();
+});
+
 test('handles block-level frames, inline bookmarks and nested list containers', async () => {
   const doc = await parseBody(`
     <office:text>

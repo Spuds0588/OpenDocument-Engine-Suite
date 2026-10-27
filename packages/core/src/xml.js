@@ -19,9 +19,20 @@ export function localNameOf(node) {
   return node.localName || String(node.nodeName || '').split(':').pop();
 }
 
+/**
+ * Child elements, collected by pointer walk.
+ *
+ * jsdom wraps NodeList in a Proxy that charges for every indexed lookup, so
+ * `Array.from(parent.childNodes).filter(...)` measured roughly 8x slower than
+ * following firstChild/nextSibling. The hot paths below avoid it entirely.
+ */
 export function getChildElements(parent) {
-  if (!parent) return [];
-  return Array.from(parent.childNodes || []).filter(isElement);
+  const out = [];
+  if (!parent) return out;
+  for (let child = parent.firstChild; child; child = child.nextSibling) {
+    if (child.nodeType === 1) out.push(child);
+  }
+  return out;
 }
 
 export function getChildrenByTag(parent, localName) {
@@ -53,7 +64,9 @@ export function getFirstElementByTag(root, localName) {
 
 /** Depth-first walk over element descendants; return true from fn to stop. */
 export function walkElements(root, fn, depth = 0) {
-  for (const child of getChildElements(root)) {
+  if (!root) return false;
+  for (let child = root.firstChild; child; child = child.nextSibling) {
+    if (child.nodeType !== 1) continue;
     if (fn(child, depth) === true) return true;
     if (walkElements(child, fn, depth + 1) === true) return true;
   }
@@ -65,16 +78,13 @@ export function walkElements(root, fn, depth = 0) {
  * `getAttribute(node, 'font-size')` matches fo:font-size, style:font-size, etc.
  */
 export function getAttribute(node, localName) {
-  if (!node || !node.attributes) return null;
-  const attrs = node.attributes;
-  for (let i = 0; i < attrs.length; i++) {
-    const attr = attrs.item(i);
-    if (attr.localName === localName) return attr.value;
-  }
-  for (let i = 0; i < attrs.length; i++) {
-    const attr = attrs.item(i);
-    const name = attr.name || attr.nodeName || '';
-    if (name === localName || name.endsWith(`:${localName}`)) return attr.value;
+  if (!node || !node.getAttributeNames) return null;
+  // getAttributeNames() avoids the proxied NamedNodeMap item() loop, which
+  // measured several times slower in jsdom. Qualified names are matched by
+  // suffix, so fo:font-size still answers a lookup for font-size.
+  const suffix = `:${localName}`;
+  for (const name of node.getAttributeNames()) {
+    if (name === localName || name.endsWith(suffix)) return node.getAttribute(name);
   }
   return null;
 }
@@ -97,7 +107,7 @@ export function textOf(node) {
   if (!node) return '';
   let text = '';
   const visit = (current) => {
-    for (const child of current.childNodes || []) {
+    for (let child = current.firstChild; child; child = child.nextSibling) {
       if (child.nodeType === 3) {
         text += (child.nodeValue || '').replace(/\r\n/g, '\n');
         continue;

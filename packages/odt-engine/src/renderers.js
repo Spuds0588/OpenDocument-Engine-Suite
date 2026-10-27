@@ -177,9 +177,6 @@ function tableGrid(table, styles) {
   const occupied = [];
   const grid = [];
   for (const row of table.rows) {
-    for (let column = 0; column < occupied.length; column++) {
-      if (occupied[column] > 0) occupied[column]--;
-    }
     const cells = [];
     let column = 0;
     for (const cell of row.cells) {
@@ -188,10 +185,13 @@ function tableGrid(table, styles) {
       const colSpan = Math.max(cell.colSpan, 1);
       const rowSpan = Math.max(cell.rowSpan, 1);
       cells[column] = text;
-      for (let offset = 0; offset < colSpan; offset++) occupied[column + offset] = rowSpan - 1;
+      for (let offset = 0; offset < colSpan; offset++) occupied[column + offset] = rowSpan;
       column += colSpan;
     }
     grid.push(cells);
+    for (let index = 0; index < occupied.length; index++) {
+      if (occupied[index] > 0) occupied[index]--;
+    }
   }
   return grid;
 }

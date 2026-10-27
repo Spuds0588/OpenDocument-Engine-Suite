@@ -17,7 +17,7 @@ import {
 import { lengthToMm } from './units.js';
 
 // Attributes that map 1:1 onto a CSS property.
-const IDENTITY = ' font-size font-weight font-style font-family color background-color font-variant letter-spacing text-transform line-height text-indent margin margin-top margin-bottom margin-left margin-right padding padding-top padding-bottom padding-left padding-right border border-top border-bottom border-left border-right border-style border-color border-width width height min-height opacity background-image ';
+const IDENTITY = ' font-size font-weight font-style font-family color background-color font-variant letter-spacing text-transform line-height text-indent text-decoration margin margin-top margin-bottom margin-left margin-right padding padding-top padding-bottom padding-left padding-right border border-top border-bottom border-left border-right border-style border-color border-width width height min-height opacity background-image ';
 
 const ALIAS = {
   'column-width': 'width',
@@ -33,10 +33,9 @@ const DECORATION = 'text-decoration';
 
 function attributes(element) {
   const raw = {};
-  if (!element || !element.attributes) return raw;
-  for (let index = 0; index < element.attributes.length; index++) {
-    const attribute = element.attributes.item(index);
-    raw[attribute.localName || String(attribute.name || '').split(':').pop()] = attribute.value;
+  if (!element || !element.getAttributeNames) return raw;
+  for (const name of element.getAttributeNames()) {
+    raw[name.split(':').pop()] = element.getAttribute(name);
   }
   return raw;
 }

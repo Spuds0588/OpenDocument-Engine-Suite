@@ -75,6 +75,19 @@ test('maps text decorations and graphic fills and strokes', () => {
   assert.equal(box['border-style'], 'solid');
 });
 
+test('passes an explicit text-decoration attribute through', () => {
+  const xml = stylesDocument({
+    styles: `
+      <style:style style:name="Decorated" style:family="text">
+        <style:text-properties fo:text-decoration="line-through"/>
+      </style:style>`,
+  });
+  const styles = new StyleResolver().addStylesDoc(parseXML(xml, 'styles.xml'));
+
+  assert.equal(styles.resolve('Decorated')['text-decoration'], 'line-through');
+  assert.equal(styles.css('Decorated'), 'text-decoration:line-through');
+});
+
 test('exposes page layouts and master page backgrounds', () => {
   const styles = resolver();
   const page = pageLayout(styles, 'pm1');

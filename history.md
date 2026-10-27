@@ -5,6 +5,35 @@ its date. `todo.md` is the forward queue; `AGENTS.md` holds the working rules.
 
 ## 2026-10-27
 
+### Size, speed and accuracy refinement
+
+- Traversal is now child-pointer based. A CPU profile of the 5 MB benchmark
+  showed `getChildElements` and `getAttribute` dominating our own frames because
+  jsdom proxies `NodeList` and `NamedNodeMap`; a microbenchmark measured
+  `firstChild`/`nextSibling` walks about 8x faster than
+  `Array.from(childNodes).filter(...)` and `getAttributeNames()` about 6x faster
+  than an `attributes.item(i)` loop. `packages/core/src/xml.js` and
+  `packages/core/src/styles.js` now use both, and the ODT inline parser follows
+  child pointers directly.
+- ODS cell parsing reads the typed value, spans and style once per element
+  instead of once per `number-columns-repeated` iteration, and rows/cells are
+  only deep-copied when a repeat counter actually repeats them.
+- Median benchmark (5 MB XML, 3 runs, Node 20 + jsdom): ODT 1592 -> 959 ms,
+  ODS 4345 -> 1628 ms, ODP 4028 -> 1507 ms (40% / 63% / 63% faster). The
+  remaining time is jsdom's own XML parser and tree construction; the largest
+  remaining function of ours is about 3% of samples. The 150 ms target is still
+  not met and browser timing is still unmeasured.
+- Bundles shrank slightly despite the extra speed work: 23.67 -> 23.55 KB
+  (ODT), 17.21 -> 17.19 KB (ODS), 18.86 -> 18.82 KB (ODP). ODT regained
+  roughly 0.45 KB of headroom under the 24 KB regression cap.
+- Accuracy: a literal `fo:text-decoration` attribute is now passed through
+  (the PRD lists it; only the underline/strike attributes were read before),
+  and the ODT Markdown/plain-text table flattener keeps row-span columns
+  occupied through the full span instead of releasing them one row early, so
+  spanned rows no longer shift a column left.
+- Verification: 112 tests pass, `npm run check` is green, and the dist smoke
+  test still parses all three formats.
+
 ### Test-suite hardening and bug fixes
 
 Expanded the suite from 34 to 110 tests. New coverage lives in

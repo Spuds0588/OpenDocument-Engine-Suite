@@ -9,16 +9,16 @@ Status: `[ ]` open, `[x]` done.
 ## Blocked: PRD size target
 
 - [ ] Meet the 15 KB minified / 5 KB gzipped per-engine target.
-      Current: ODT 23.67 / 9.03 KB, ODS 17.21 / 7.04 KB, ODP 18.86 / 7.76 KB.
-      The layout/list split cut ODS by about 9%; ODT and ODP stayed flat because
-      required correctness fixes offset the savings. Reaching 15 KB requires a
+      Current: ODT 23.55 / 9.02 KB, ODS 17.19 / 7.01 KB, ODP 18.82 / 7.73 KB.
+      The layout/list split cut ODS by about 9%, and the speed work left the
+      bundles slightly smaller than before it. Reaching 15 KB requires a
       product decision to drop parser or renderer features, not another
       minifier pass. The build still enforces the 24 KB / 10 KB regression cap.
 
 ## Next
 
 - [ ] Measure the same 5 MB benchmark in a real browser. The current numbers
-      (ODT 1.6 s, ODS 4.3 s, ODP 4.0 s on Node + jsdom) are a conservative
+      (ODT 0.96 s, ODS 1.63 s, ODP 1.51 s on Node + jsdom) are a conservative
       lower bound, not the browser result. `npm run bench` fails the 150 ms
       target; do not report it as met.
 - [ ] Add a memory measurement for repeated parses and `destroy()` cycles.
@@ -35,7 +35,13 @@ Status: `[ ]` open, `[x]` done.
 
 ## Done
 
-- [x] Expanded the suite from 34 to 110 tests: core ZIP/XML/units/styles/media/
+- [x] Refined parsing speed: pointer-based XML traversal and
+      `getAttributeNames()` reads instead of proxied collection access, plus
+      per-element (not per-repeat) spreadsheet cell typing. Median 5 MB parse:
+      ODT 1592 -> 959 ms, ODS 4345 -> 1628 ms, ODP 4028 -> 1507 ms.
+- [x] Accuracy: pass a literal `fo:text-decoration` through, and keep row-span
+      columns occupied through the whole span in Markdown/plain-text tables.
+- [x] Expanded the suite from 34 to 112 tests: core ZIP/XML/units/styles/media/
       logging/HTML/print coverage, ODT/ODS/ODP edge cases, and cross-package
       integration tests.
 - [x] Fixed the bugs the expanded suite exposed (details in `history.md`).
