@@ -1,0 +1,71 @@
+# ODF Suite
+
+> ODF Suite is three zero-dependency JavaScript libraries that parse OpenDocument files entirely in the browser. odt-engine reads .odt text documents, ods-engine reads .ods spreadsheets, and odp-engine reads .odp presentations.
+
+## Packages
+
+- [odt-engine](https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odt-engine): parses .odt headings, styled runs, links, lists, tables and images. Exports a JSON AST, print-ready HTML, Markdown and plain text.
+- [ods-engine](https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/ods-engine): parses .ods typed cells, formulas, dates, booleans, percentages, merged cells and column widths. Exports a typed matrix, RFC 4180 CSV, header-keyed JSON and landscape print HTML.
+- [odp-engine](https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odp-engine): parses .odp slides, frame geometry, text, bullets, shapes, images and master backgrounds. Exports positioned slide HTML and a Markdown transcript.
+
+## Quick facts
+
+- Input: File, Blob, ArrayBuffer or Uint8Array.
+- Runtime dependencies: none. Every package has an empty dependencies map.
+- Output: HTML with CSS Paged Media, Markdown, plain text, CSV, JSON and a JSON AST.
+- Current minified sizes: odt-engine 23.35 KB (8.97 KB gzip), ods-engine 17.17 KB (7.05 KB gzip), odp-engine 18.78 KB (7.69 KB gzip).
+- Browser parse benchmark: about 5 MB of XML in headless Chrome 155, median of seven runs after warm-up. ODT 122-128 ms, ODS 194-195 ms, ODP 196-201 ms. The target is 150 ms; ODT meets it, ODS and ODP do not.
+- Node 20 with jsdom takes about 0.95 s (ODT), 1.44 s (ODS) and 1.46 s (ODP) for the same fixtures.
+- Browser support: Chrome 80+, Edge 80+, Firefox 113+, Safari 16.4+, or any runtime with DecompressionStream, DOMParser and Blob URLs.
+- License: MIT.
+- npm status: not published yet. The packages build from the repository into standalone ESM bundles, and those bundles are committed for direct loading.
+
+## Install from source
+
+    git clone https://github.com/Spuds0588/OpenDocument-Engine-Suite.git
+    cd OpenDocument-Engine-Suite
+    npm install
+    npm run build
+
+The bundles are written to packages/odt-engine/dist, packages/ods-engine/dist and packages/odp-engine/dist.
+
+## Load without npm
+
+Each committed bundle is a standalone ES module, served from GitHub Pages and mirrored by jsDelivr:
+
+- odt-engine: https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js | https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js
+- ods-engine: https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js | https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/ods-engine/dist/index.js
+- odp-engine: https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js | https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odp-engine/dist/index.js
+
+Import a URL directly:
+
+    import { parseODT } from 'https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js';
+
+Both hosts serve the same file. `@main` tracks the latest build; replace it with a commit SHA or tag for a frozen copy. To survive one host being unavailable, try the URLs in order with `await import(url)` and a `try/catch`.
+
+## Usage
+
+    import { parseODT } from 'odt-engine';
+
+    const doc = await parseODT(file);
+    document.querySelector('#preview').innerHTML = doc.toHTML();
+    console.log(doc.toMarkdown());
+    doc.destroy();
+
+Spreadsheets use parseODS and expose toMatrix, toCSV, toJSON and toHTML. Presentations use parseODP and expose toHTML and toMarkdown. Call destroy() to revoke Blob URLs created for embedded images.
+
+## Limitations
+
+- Read-only; no editing.
+- OpenDocument only; no DOCX, XLSX, PPTX or legacy binary formats.
+- ZIP64 archives are rejected and encrypted entries are skipped.
+- ODT footnotes and comments are not in the AST.
+- Spreadsheet formulas are preserved but not evaluated.
+- Slide animation and media are not rendered.
+- Built for documents in the low-megabyte range; repeat counters are clipped to predictable limits.
+
+## Links
+
+- Source: https://github.com/Spuds0588/OpenDocument-Engine-Suite
+- README: https://github.com/Spuds0588/OpenDocument-Engine-Suite/blob/main/README.md
+- History and benchmark methodology: https://github.com/Spuds0588/OpenDocument-Engine-Suite/blob/main/history.md

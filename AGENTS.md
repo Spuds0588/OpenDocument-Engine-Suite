@@ -26,6 +26,10 @@ current work queue. `history.md` records what is already done.
 - **Prefer the smallest change.** Prefer a one-line fix when one line fully
   solves the problem. Do not introduce helpers, wrappers or layers for a single
   call site. A new file needs a concrete reason.
+- **Keep the public site honest.** `index.html` is served by GitHub Pages from
+  the repository root. When sizes, benchmarks or limitations change, update the
+  page along with `README.md` and `history.md`; do not let marketing claims
+  drift from measurements.
 - **Clean up after every task.** This environment has limited memory and
   shared resources. Before finishing:
   - stop any server, watcher or background process you started;
@@ -38,16 +42,19 @@ current work queue. `history.md` records what is already done.
 ## Commands
 
 ```bash
-npm install       # once per checkout
-npm test          # node:test, all packages (112 cases)
-npm run build     # minified standalone ESM bundles + declarations
-npm run smoke     # parse fixtures through the built dist bundles
-npm run bench     # 5 MB parse-time benchmark (Node + jsdom)
-npm run check     # test + build + smoke; run before calling work done
+npm install           # once per checkout
+npm test              # node:test, all packages (113 cases)
+npm run test:browser  # build + browser conformance checks in headless Chrome
+npm run build         # minified standalone ESM bundles + declarations into tracked dist
+npm run smoke         # parse fixtures through the built dist bundles
+npm run bench         # 5 MB parse-time benchmark (Node + jsdom)
+npm run bench:browser # 5 MB parse-time benchmark in headless Chrome (7 runs)
+npm run check         # test + build + smoke + browser suite; run before done
 ```
 
-Node 18+ is supported. `DecompressionStream` is native; the tests supply
-`DOMParser` through jsdom (`test/helpers/env.js`). jsdom and esbuild are dev
+Node 18+ is supported. `DecompressionStream` is native; the Node tests supply
+`DOMParser` through jsdom (`test/helpers/env.js`). The browser suite needs an
+installed Chrome (or `CHROME_PATH`). jsdom, esbuild and playwright-core are dev
 dependencies only.
 
 ## Architecture rules
@@ -70,6 +77,11 @@ dependencies only.
 - **AST first.** Parsers return plain JSON. Renderers read the AST only; they
   must not re-parse XML. The exact shapes are in
   `packages/core/src/types.d.ts`.
+- **Committed dist is public.** `packages/*/dist` is tracked because GitHub
+  Pages and jsDelivr serve those bundles directly. Run `npm run build` before
+  committing a source change and include the refreshed `dist`; the URLs on the
+  landing page and in the READMEs must keep resolving. `@main` URLs follow the
+  latest build, so publish a tag or commit SHA when a frozen copy is needed.
 - **ESM only.** `"type": "module"`, no CommonJS build, no transpiler in the
   source path.
 
@@ -77,6 +89,10 @@ dependencies only.
 
 - Tests use `node:test` and `node:assert/strict`, colocated under
   `packages/*/test`.
+- The browser suite (`test/browser/suite.js`, driver `scripts/browser.mjs`) runs
+  the built `dist` bundles in headless Chrome. It is the authoritative check for
+  real `DOMParser` behavior, Blob URL lifecycle and rendered DOM structure; add
+  a check there when behavior can differ between jsdom and a browser.
 - Fixtures are real ZIP containers built in memory by
   `test/helpers/odf.js` and `test/helpers/zip.js`. Add fixture support there
   rather than checking binary files into the repository.
@@ -92,9 +108,13 @@ dependencies only.
   `walkElements`.
 - Do not iterate `childNodes` or `attributes` in whole-document loops. jsdom
   proxies both collections and every indexed access is expensive; the helpers
-  in `packages/core/src/xml.js` walk `firstChild`/`nextSibling` and read
-  `getAttributeNames()`, which measured 6-8x faster. Attribute lookups are per
-  element, never per repeat counter iteration.
+  in `packages/core/src/xml.js` walk `firstChild`/`nextSibling` and index each
+  element's attributes once into a cache, which measured 6-8x faster than the
+  proxied collections. Attribute lookups are per element, never per repeat
+  counter iteration.
+- Style indexing walks only `office:styles`, `office:automatic-styles` and
+  `office:master-styles`. Do not scan the document body to find styles; that
+  was the largest browser hot spot after XML parsing.
 - Build changes are checked with `npm run build` and `npm run smoke`; a bundle
   past the 24 KB / 10 KB regression cap fails the build.
 

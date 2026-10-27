@@ -4,9 +4,19 @@ Parse an `.odt` file entirely in the browser. Zero dependencies, no server uploa
 
 Keywords: javascript parse odt, browser odt to pdf, convert odt to html in the browser, pure js libreoffice writer parser, odt to markdown.
 
+Not published to npm yet. Build from the repository first, then install the package folder from your app:
+
 ```bash
-npm install odt-engine
+npm install /path/to/OpenDocument-Engine-Suite/packages/odt-engine
 ```
+
+Or load the committed bundle without installing anything:
+
+```js
+import { parseODT } from 'https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js';
+```
+
+jsDelivr mirror: `https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build.
 
 ## Quick start
 

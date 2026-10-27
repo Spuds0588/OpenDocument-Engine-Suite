@@ -4,9 +4,19 @@ Read `.odp` presentations in the browser. Zero dependencies, absolute slide layo
 
 Keywords: javascript parse odp slides, odp presentation viewer js, libreoffice impress to pdf client side, extract text from odp.
 
+Not published to npm yet. Build from the repository first, then install the package folder from your app:
+
 ```bash
-npm install odp-engine
+npm install /path/to/OpenDocument-Engine-Suite/packages/odp-engine
 ```
+
+Or load the committed bundle without installing anything:
+
+```js
+import { parseODP } from 'https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js';
+```
+
+jsDelivr mirror: `https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odp-engine/dist/index.js`. Pin a tag or commit SHA instead of `main` for a frozen build.
 
 ## Quick start
 

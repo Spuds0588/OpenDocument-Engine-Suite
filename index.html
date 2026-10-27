@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ODT, ODS and ODP parsers for the browser | ODF Suite</title>
+<meta name="description" content="Parse OpenDocument .odt, .ods and .odp files in the browser with three zero-dependency JavaScript engines. Print-ready HTML, Markdown, CSV and JSON.">
+<meta name="author" content="OpenDocument Engine Suite contributors">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f7f5ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141412" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://spuds0588.github.io/OpenDocument-Engine-Suite/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate" type="text/plain" title="LLM context" href="llms.txt">
+<link rel="stylesheet" href="assets/site.css">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ODF Suite">
+<meta property="og:title" content="ODF Suite — OpenDocument parsers for the browser">
+<meta property="og:description" content="Three zero-dependency JavaScript engines for OpenDocument .odt, .ods and .odp files. Print-ready HTML, Markdown, CSV and JSON, parsed locally in the browser.">
+<meta property="og:url" content="https://spuds0588.github.io/OpenDocument-Engine-Suite/">
+<meta property="og:image" content="https://spuds0588.github.io/OpenDocument-Engine-Suite/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ODF Suite: OpenDocument files, parsed in the browser.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ODF Suite — OpenDocument parsers for the browser">
+<meta name="twitter:description" content="Zero-dependency OpenDocument parsing in the browser: .odt, .ods and .odp to HTML, Markdown, CSV or JSON. No server.">
+<meta name="twitter:image" content="https://spuds0588.github.io/OpenDocument-Engine-Suite/assets/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://spuds0588.github.io/OpenDocument-Engine-Suite/#website",
+      "url": "https://spuds0588.github.io/OpenDocument-Engine-Suite/",
+      "name": "ODF Suite",
+      "alternateName": "OpenDocument Engine Suite",
+      "description": "Zero-dependency JavaScript parsers for OpenDocument text, spreadsheet and presentation files.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "ItemList",
+      "name": "OpenDocument parser packages",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "item": {
+            "@type": "SoftwareApplication",
+            "name": "odt-engine",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Any",
+            "programmingLanguage": "JavaScript",
+            "description": "Parse .odt text documents in the browser and export HTML, Markdown, plain text and a JSON AST.",
+            "url": "https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odt-engine",
+            "downloadUrl": "https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js",
+            "codeRepository": "https://github.com/Spuds0588/OpenDocument-Engine-Suite",
+            "softwareVersion": "0.1.0",
+            "license": "https://opensource.org/licenses/MIT",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "item": {
+            "@type": "SoftwareApplication",
+            "name": "ods-engine",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Any",
+            "programmingLanguage": "JavaScript",
+            "description": "Parse .ods spreadsheets in the browser and export a typed matrix, CSV, JSON and print-ready HTML.",
+            "url": "https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/ods-engine",
+            "downloadUrl": "https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js",
+            "codeRepository": "https://github.com/Spuds0588/OpenDocument-Engine-Suite",
+            "softwareVersion": "0.1.0",
+            "license": "https://opensource.org/licenses/MIT",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "item": {
+            "@type": "SoftwareApplication",
+            "name": "odp-engine",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Any",
+            "programmingLanguage": "JavaScript",
+            "description": "Parse .odp presentations in the browser and export positioned slide HTML or a Markdown transcript.",
+            "url": "https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odp-engine",
+            "downloadUrl": "https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js",
+            "codeRepository": "https://github.com/Spuds0588/OpenDocument-Engine-Suite",
+            "softwareVersion": "0.1.0",
+            "license": "https://opensource.org/licenses/MIT",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can I parse ODT, ODS or ODP files in the browser?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Each engine accepts a File, Blob, ArrayBuffer or Uint8Array and parses it locally with DOMParser, DecompressionStream and Blob URLs. The file never leaves the page."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need LibreOffice, a backend or a conversion service?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The libraries read the OpenDocument ZIP and XML directly in JavaScript. There is no server-side conversion step and no native binary."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How large are the libraries?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The current minified bundles are 23.35 KB for odt-engine, 17.17 KB for ods-engine and 18.78 KB for odp-engine. Gzipped they are 8.97 KB, 7.05 KB and 7.69 KB. Every package has an empty runtime dependency map."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I convert an OpenDocument file to PDF?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. toHTML() returns a complete HTML document with CSS Paged Media rules. Pass it to triggerPrintToPDF or load it in an iframe and call print; the browser produces the PDF."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do the libraries support DOCX, XLSX or PPTX?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. They are deliberately OpenDocument-only. Legacy binary formats and Microsoft Office XML formats are out of scope."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are spreadsheet formulas evaluated?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Formulas are preserved verbatim in the AST and in exported values. The engines read cached cell results rather than recalculating the workbook."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are the known limitations?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The engines are read-only. ZIP64 archives are rejected, encrypted entries are skipped, ODT footnotes and comments are not in the AST, and slide animation and media are not rendered. They are built for documents in the low-megabyte range."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use the libraries without npm or a build step?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The built ESM bundles are served from GitHub Pages and mirrored by jsDelivr. Import the URL directly, or try both hosts with a dynamic import fallback."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap head-inner">
+    <a class="brand" href="./" aria-label="ODF Suite home">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>ODF<span class="brand-dim">.suite</span></span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#formats">Formats</a>
+      <a href="#install">Use it</a>
+      <a class="nav-optional" href="#why">Why small</a>
+      <a class="nav-optional" href="#performance">Performance</a>
+      <a class="nav-optional" href="#faq">FAQ</a>
+      <a class="nav-github" href="https://github.com/Spuds0588/OpenDocument-Engine-Suite" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero wrap">
+    <p class="eyebrow">Zero dependencies · Browser-native · MIT</p>
+    <h1>OpenDocument files,<br><span class="accent">parsed in the browser.</span></h1>
+    <p class="lede">Three small JavaScript engines for <code>.odt</code>, <code>.ods</code> and <code>.odp</code>. Read LibreOffice files locally, keep their structure, and render print-ready HTML, Markdown, CSV or JSON. No server, no upload, no PDF library.</p>
+    <div class="hero-actions">
+      <a class="button button-primary" href="#install">Get started</a>
+      <a class="button" href="https://github.com/Spuds0588/OpenDocument-Engine-Suite" rel="noopener">Read the source <span aria-hidden="true">↗</span></a>
+    </div>
+    <dl class="stats">
+      <div><dt>Runtime dependencies</dt><dd>0</dd></div>
+      <div><dt>Minified per engine</dt><dd>17–23 KB</dd></div>
+      <div><dt>Formats</dt><dd>ODT · ODS · ODP</dd></div>
+      <div><dt>Automated checks</dt><dd>126</dd></div>
+    </dl>
+  </section>
+
+  <section class="wrap answer" aria-labelledby="what">
+    <h2 id="what">What ODF Suite is</h2>
+    <p><strong>ODF Suite is a set of three zero-dependency JavaScript libraries that parse OpenDocument Format (ODF) files in the browser.</strong> Each engine turns a ZIP container into a plain JSON AST, then renders it with the platform: semantic HTML and CSS Paged Media for printing, CommonMark for text, CSV and JSON for data. It is not a converter service and it does not need LibreOffice, WebAssembly or a backend.</p>
+  </section>
+
+  <section id="formats" class="section wrap">
+    <div class="section-head">
+      <p class="section-label">01 / Formats</p>
+      <h2>Parse ODT, ODS and ODP in JavaScript</h2>
+      <p>One engine per file type. Install only what you need; every package is standalone ESM, tree-shakeable and keeps <code>"dependencies": {}</code>.</p>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <div class="card-top">
+          <h3><code>odt-engine</code></h3>
+          <span class="tag">.odt</span>
+        </div>
+        <p>Text documents: headings, styled runs, links, nested lists, tables with spans and embedded images.</p>
+        <ul class="ticks">
+          <li>HTML with real page size and margins</li>
+          <li>Markdown and plain text</li>
+          <li>JSON AST and Blob image URLs</li>
+        </ul>
+        <div class="card-meta"><span>23.35 KB min · 8.97 KB gzip</span><a href="https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odt-engine" rel="noopener">README ↗</a></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <h3><code>ods-engine</code></h3>
+          <span class="tag">.ods</span>
+        </div>
+        <p>Spreadsheets: typed cells, dates, booleans, percentages, formulas, merged cells and column widths.</p>
+        <ul class="ticks">
+          <li>RFC 4180 CSV and header-keyed JSON</li>
+          <li>Typed matrix with covered cells preserved</li>
+          <li>Landscape, multi-sheet print HTML</li>
+        </ul>
+        <div class="card-meta"><span>17.17 KB min · 7.05 KB gzip</span><a href="https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/ods-engine" rel="noopener">README ↗</a></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <h3><code>odp-engine</code></h3>
+          <span class="tag">.odp</span>
+        </div>
+        <p>Presentations: ordered slides, positioned text frames, bullets, shapes, images and master backgrounds.</p>
+        <ul class="ticks">
+          <li>Slide-relative geometry in the HTML</li>
+          <li>One printed page per slide</li>
+          <li>Markdown transcript for search or LLM context</li>
+        </ul>
+        <div class="card-meta"><span>18.78 KB min · 7.69 KB gzip</span><a href="https://github.com/Spuds0588/OpenDocument-Engine-Suite/tree/main/packages/odp-engine" rel="noopener">README ↗</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="install" class="section wrap">
+    <div class="section-head">
+      <p class="section-label">02 / Use it</p>
+      <h2>From file to markup</h2>
+      <p>Build the packages from the repository, then import the ESM bundles from <code>dist</code>.</p>
+    </div>
+
+    <div class="install-grid">
+      <div class="install-col">
+        <p class="note"><strong>Status:</strong> the packages are not published to npm yet. Clone the repository and build the bundles first; npm publication is pending.</p>
+        <figure class="code">
+          <figcaption><span>terminal</span><button class="copy" type="button">Copy</button></figcaption>
+          <pre><code>git clone https://github.com/Spuds0588/OpenDocument-Engine-Suite.git
+cd OpenDocument-Engine-Suite
+npm install
+npm run build</code></pre>
+        </figure>
+        <p class="step">Then install a package folder into your app, or copy its <code>dist/</code> directory:</p>
+        <figure class="code">
+          <figcaption><span>terminal</span><button class="copy" type="button">Copy</button></figcaption>
+          <pre><code>npm install /path/to/OpenDocument-Engine-Suite/packages/odt-engine</code></pre>
+        </figure>
+      </div>
+
+      <div class="install-col">
+        <p class="step">Drop the file into the parser and choose an output. The same object shape works for all three engines.</p>
+        <figure class="code">
+          <figcaption><span>app.js</span><button class="copy" type="button">Copy</button></figcaption>
+          <pre><code>import { parseODT } from 'odt-engine';
+
+const file = document.querySelector('input[type=file]').files[0];
+const doc = await parseODT(file);
+
+document.querySelector('#preview').innerHTML = doc.toHTML();
+console.log(doc.toMarkdown());
+
+doc.destroy(); // release Blob URLs for embedded images</code></pre>
+        </figure>
+        <figure class="code">
+          <figcaption><span>spreadsheets &amp; slides</span><button class="copy" type="button">Copy</button></figcaption>
+          <pre><code>import { parseODS } from 'ods-engine';
+
+const book = await parseODS(file);
+book.toJSON('Sales');  // records keyed by the header row
+book.toCSV('Sales');   // RFC 4180, CRLF records
+book.toHTML();         // printable workbook</code></pre>
+        </figure>
+      </div>
+    </div>
+
+    <div class="cdn">
+      <h3>Or load the bundle directly</h3>
+      <p>Each package ships a standalone ESM bundle in <code>dist/</code>, committed with the source. Import the URL and skip npm and the build step. Both hosts serve the same file.</p>
+      <div class="table-wrap">
+        <table class="mirrors">
+          <caption class="visually-hidden">Direct ESM bundle URLs by engine and host</caption>
+          <thead>
+            <tr><th scope="col">Engine</th><th scope="col">GitHub Pages</th><th scope="col">jsDelivr mirror</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>odt-engine</code></td>
+              <td><code>https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js</code></td>
+              <td><code>https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js</code></td>
+            </tr>
+            <tr>
+              <td><code>ods-engine</code></td>
+              <td><code>https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js</code></td>
+              <td><code>https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/ods-engine/dist/index.js</code></td>
+            </tr>
+            <tr>
+              <td><code>odp-engine</code></td>
+              <td><code>https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js</code></td>
+              <td><code>https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odp-engine/dist/index.js</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="step">To survive one host being unavailable, try both in order:</p>
+      <figure class="code">
+        <figcaption><span>app.js · CDN fallback</span><button class="copy" type="button">Copy</button></figcaption>
+        <pre><code>const sources = [
+  'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@main/packages/odt-engine/dist/index.js',
+  'https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js',
+];
+
+let engine;
+for (const url of sources) {
+  try { engine = await import(url); break; } catch {}
+}
+if (!engine) throw new Error('No ODT engine mirror available');
+
+const { parseODT } = engine;</code></pre>
+      </figure>
+      <p class="fineprint">Swap <code>odt-engine</code> for <code>ods-engine</code> or <code>odp-engine</code> in both URLs. <code>@main</code> tracks the latest build; use a commit SHA or tag for a frozen copy. The bundles are plain ES modules with no runtime dependencies.</p>
+    </div>
+
+    <div class="api">
+      <h3>API at a glance</h3>
+      <div class="table-wrap">
+        <table>
+          <caption class="visually-hidden">Parse functions and export methods for each package</caption>
+          <thead>
+            <tr><th scope="col">Package</th><th scope="col">Parse</th><th scope="col">Export</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>odt-engine</code></td><td><code>parseODT(input)</code></td><td><code>toAST()</code>, <code>toHTML()</code>, <code>toMarkdown()</code>, <code>toPlainText()</code></td></tr>
+            <tr><td><code>ods-engine</code></td><td><code>parseODS(input)</code></td><td><code>toAST()</code>, <code>toMatrix()</code>, <code>toCSV()</code>, <code>toJSON()</code>, <code>toHTML()</code></td></tr>
+            <tr><td><code>odp-engine</code></td><td><code>parseODP(input)</code></td><td><code>toAST()</code>, <code>toHTML()</code>, <code>toMarkdown()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fineprint"><code>input</code> can be a <code>File</code>, <code>Blob</code>, <code>ArrayBuffer</code> or <code>Uint8Array</code>. TypeScript declarations ship with each package.</p>
+    </div>
+  </section>
+
+  <section id="why" class="section wrap">
+    <div class="section-head">
+      <p class="section-label">03 / Why small</p>
+      <h2>A parser, not an office suite</h2>
+      <p>General-purpose office toolkits carry formats and machinery this task does not need. ODF Suite keeps the scope to three file types and hands the rest to the browser.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="visually-hidden">ODF Suite compared with a typical general-purpose office toolkit</caption>
+        <thead>
+          <tr><th scope="col">&nbsp;</th><th scope="col">ODF Suite</th><th scope="col">Typical all-in-one office toolkit</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Formats</th><td>ODT, ODS and ODP, parsed natively</td><td>Often DOCX / XLSX / PPTX first; ODF is an extra path</td></tr>
+          <tr><th scope="row">Runtime dependencies</th><td>None. Every package has an empty dependency map.</td><td>Usually ZIP, PDF, crypto or canvas helpers</td></tr>
+          <tr><th scope="row">Size</th><td>17–23 KB minified per engine</td><td>One larger bundle for every format and feature</td></tr>
+          <tr><th scope="row">PDF output</th><td>Browser print via CSS Paged Media</td><td>Often a bundled PDF or canvas pipeline</td></tr>
+          <tr><th scope="row">Data path</th><td>Local parse; files never leave the page</td><td>Varies; conversion services are common</td></tr>
+          <tr><th scope="row">Trade-off</th><td>ODF only, read-only, no formula evaluation</td><td>Broader formats and editing, with more weight</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fineprint">The comparison describes the common shape of all-in-one office libraries and hosted conversion tools, not a specific product. Pick the tool that matches the files you actually receive.</p>
+
+    <div class="principles">
+      <div>
+        <p class="mono-label">Platform over packages</p>
+        <p><code>DecompressionStream</code> unzips. <code>DOMParser</code> reads XML. <code>Blob</code> URLs carry images. CSS Paged Media produces the print layout. Nothing is reimplemented in JavaScript that the browser already does well.</p>
+      </div>
+      <div>
+        <p class="mono-label">Structure, not a text dump</p>
+        <p>The AST keeps heading levels, inline styles, nested lists, cell spans, typed values, formulas, slide geometry and master backgrounds. Renderers read that AST; they never re-parse XML.</p>
+      </div>
+      <div>
+        <p class="mono-label">Local by default</p>
+        <p>Parsing happens on the device. That keeps confidential documents out of a conversion queue and makes the libraries work offline once the page is loaded.</p>
+      </div>
+      <div>
+        <p class="mono-label">Small blast radius</p>
+        <p>One package per format, no transitive installs, namespaced XML matching and tagged <code>OdfError</code> codes. The bundle stays auditable.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap steps" aria-labelledby="how">
+    <div class="section-head">
+      <p class="section-label">04 / How it works</p>
+      <h2>Four steps, all in the page</h2>
+    </div>
+    <ol class="step-list">
+      <li>
+        <span class="step-num">01</span>
+        <div><h3>Unzip</h3><p>The ZIP central directory is read with <code>DataView</code>; each entry is inflated with native <code>DecompressionStream('deflate-raw')</code>.</p></div>
+      </li>
+      <li>
+        <span class="step-num">02</span>
+        <div><h3>Parse by local name</h3><p>Every lookup matches on <code>localName</code>, so <code>office:</code>, <code>text:</code> and <code>table:</code> prefixes can differ between producers.</p></div>
+      </li>
+      <li>
+        <span class="step-num">03</span>
+        <div><h3>Resolve the cascade</h3><p>Default, named, automatic, parent and master styles become flat CSS declarations. Page layouts feed <code>@page</code>.</p></div>
+      </li>
+      <li>
+        <span class="step-num">04</span>
+        <div><h3>Render or export</h3><p>Output semantic HTML, Markdown, plain text, CSV, JSON or a JSON AST. Call <code>destroy()</code> to revoke image Blob URLs.</p></div>
+      </li>
+    </ol>
+  </section>
+
+  <section id="performance" class="section wrap">
+    <div class="section-head">
+      <p class="section-label">05 / Performance</p>
+      <h2>Measured in Chrome, not assumed</h2>
+      <p>About 5 MB of document XML per engine, parsed in the browser on a normal laptop. Median of seven runs after warm-up, with a forced collection between runs.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="perf">
+        <caption class="visually-hidden">Browser parse time and bundle size by engine</caption>
+        <thead>
+          <tr><th scope="col">Engine</th><th scope="col">Chrome 155 median</th><th scope="col">150 ms target</th><th scope="col">Minified</th><th scope="col">Gzipped</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>odt-engine</code></td><td class="num">122–128 ms</td><td><span class="pass">met</span></td><td class="num">23.35 KB</td><td class="num">8.97 KB</td></tr>
+          <tr><td><code>ods-engine</code></td><td class="num">194–195 ms</td><td><span class="miss">not yet</span></td><td class="num">17.17 KB</td><td class="num">7.05 KB</td></tr>
+          <tr><td><code>odp-engine</code></td><td class="num">196–201 ms</td><td><span class="miss">not yet</span></td><td class="num">18.78 KB</td><td class="num">7.69 KB</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fineprint">Chrome 155, October 2026. ODT meets the 150 ms target for this 5 MB fixture; ODS and ODP are still above it. Under Node 20 with jsdom the same fixtures take roughly 0.95 s, 1.44 s and 1.46 s. The <a href="https://github.com/Spuds0588/OpenDocument-Engine-Suite/blob/main/history.md" rel="noopener">history</a> records the methodology and the changes behind these numbers.</p>
+  </section>
+
+  <section id="faq" class="section wrap">
+    <div class="section-head">
+      <p class="section-label">06 / FAQ</p>
+      <h2>Questions, answered</h2>
+    </div>
+
+    <div class="faq">
+      <article>
+        <h3>Can I parse ODT, ODS or ODP files in the browser?</h3>
+        <p>Yes. Each engine accepts a <code>File</code>, <code>Blob</code>, <code>ArrayBuffer</code> or <code>Uint8Array</code> and parses it locally with <code>DOMParser</code>, <code>DecompressionStream</code> and Blob URLs. The file never leaves the page.</p>
+      </article>
+      <article>
+        <h3>Do I need LibreOffice, a backend or a conversion service?</h3>
+        <p>No. The libraries read the OpenDocument ZIP and XML directly in JavaScript. There is no server-side conversion step and no native binary.</p>
+      </article>
+      <article>
+        <h3>How large are the libraries?</h3>
+        <p>The current minified bundles are 23.35 KB for <code>odt-engine</code>, 17.17 KB for <code>ods-engine</code> and 18.78 KB for <code>odp-engine</code>. Gzipped they are 8.97 KB, 7.05 KB and 7.69 KB. Every package has an empty runtime dependency map.</p>
+      </article>
+      <article>
+        <h3>Can I convert an OpenDocument file to PDF?</h3>
+        <p>Yes. <code>toHTML()</code> returns a complete HTML document with CSS Paged Media rules. Pass it to <code>triggerPrintToPDF</code> or load it in an iframe and call <code>print()</code>; the browser produces the PDF.</p>
+      </article>
+      <article>
+        <h3>Do the libraries support DOCX, XLSX or PPTX?</h3>
+        <p>No. They are deliberately OpenDocument-only. Legacy binary formats and Microsoft Office XML formats are out of scope.</p>
+      </article>
+      <article>
+        <h3>Are spreadsheet formulas evaluated?</h3>
+        <p>No. Formulas are preserved verbatim in the AST and in exported values. The engines read cached cell results rather than recalculating the workbook.</p>
+      </article>
+      <article>
+        <h3>What are the known limitations?</h3>
+        <p>The engines are read-only. ZIP64 archives are rejected, encrypted entries are skipped, ODT footnotes and comments are not in the AST, and slide animation and media are not rendered. They are built for documents in the low-megabyte range.</p>
+      </article>
+      <article>
+        <h3>Can I use the libraries without npm or a build step?</h3>
+        <p>Yes. The built ESM bundles are served from GitHub Pages and mirrored by jsDelivr. Import the URL directly, or try both hosts with a dynamic import fallback.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="wrap cta">
+    <p class="section-label">Start here</p>
+    <h2>Read the format. Keep the structure.</h2>
+    <p>Clone the repository, build the three bundles, and parse your first file without a server.</p>
+    <div class="hero-actions">
+      <a class="button button-primary" href="#install">Install from source</a>
+      <a class="button" href="https://github.com/Spuds0588/OpenDocument-Engine-Suite" rel="noopener">Browse the repository <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-inner">
+    <p><span class="brand-mark small" aria-hidden="true"></span> ODF Suite · MIT licensed</p>
+    <nav aria-label="Footer">
+      <a href="https://github.com/Spuds0588/OpenDocument-Engine-Suite" rel="noopener">GitHub</a>
+      <a href="https://github.com/Spuds0588/OpenDocument-Engine-Suite/blob/main/README.md" rel="noopener">README</a>
+      <a href="https://github.com/Spuds0588/OpenDocument-Engine-Suite/issues" rel="noopener">Issues</a>
+    </nav>
+    <p class="fineprint">Last updated October 27, 2026. Benchmarked in headless Chrome 155.</p>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.copy').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const code = button.closest('figure').querySelector('code');
+      try {
+        await navigator.clipboard.writeText(code.textContent);
+        button.textContent = 'Copied';
+      } catch {
+        button.textContent = 'Select and copy';
+      }
+      setTimeout(() => { button.textContent = 'Copy'; }, 1600);
+    });
+  });
+</script>
+</body>
+</html>

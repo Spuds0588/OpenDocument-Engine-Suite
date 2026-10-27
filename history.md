@@ -5,6 +5,73 @@ its date. `todo.md` is the forward queue; `AGENTS.md` holds the working rules.
 
 ## 2026-10-27
 
+### Direct-load bundles and mirrors
+
+- Tracked `packages/*/dist` and removed `dist/` from `.gitignore`. The built
+  bundles are now part of the repository, which lets GitHub Pages serve them
+  from `main` and lets jsDelivr mirror the same files without an npm release.
+- Documented both URLs per engine on the landing page, in `README.md`, in each
+  package README and in `llms.txt`, plus a dynamic-import fallback that tries
+  jsDelivr before GitHub Pages. The page FAQ and `downloadUrl` structured data
+  cover the no-build path.
+- `@main` is the documented default; a commit SHA or tag gives a frozen copy.
+  The build and smoke scripts still run against `dist`, so the committed files
+  stay the tested artifacts.
+
+### GitHub Pages landing page
+
+- Added a standalone landing page at the repository root (`index.html`,
+  `assets/site.css`, `assets/favicon.svg`, `assets/og.png`). GitHub Pages is
+  configured to serve `main` `/`, so a root page is the correct location.
+- Added `.nojekyll` so Pages serves the hand-written page directly instead of
+  rendering `README.md` through Jekyll. `robots.txt`, `sitemap.xml` and
+  `llms.txt` cover crawlers and answer engines.
+- SEO/AEO: canonical URL, Open Graph and Twitter metadata, one H1, descriptive
+  headings, a visible FAQ whose questions match the `FAQPage` JSON-LD, and
+  `WebSite` plus `ItemList`/`SoftwareApplication` structured data. The 1200×630
+  social card is generated from the same type and palette as the page.
+- The page explains the three engines, API, source-build install (the packages
+  are not on npm yet), the native-API approach, a cautious comparison with
+  all-in-one office toolkits, measured Chrome and bundle numbers, and the known
+  limitations. Claims match `README.md` and `history.md`.
+- Verified in Chrome at 1440px and 390px, light and dark schemes: no horizontal
+  overflow, no console errors, local assets load. JSON-LD parses and its FAQ
+  matches the eight visible questions.
+
+### Real-browser validation and refinement
+
+- Added `test/browser/` and `scripts/browser.mjs`: a 13-check conformance suite
+  and a 5 MB parse benchmark that load the built `dist` bundles in headless
+  Chrome through playwright-core (a dev dependency). `npm run test:browser` and
+  `npm run bench:browser` are standalone entry points, and `npm run check` now
+  runs the suite. It covers Uint8Array/Blob/File input, rendered DOM structure,
+  image Blob URL fetching and revocation, typed cells, slide geometry, hidden
+  notes, escaped Markdown and tagged error codes against the real browser APIs.
+- Browser testing exposed a real parser bug: Chrome keeps the partially parsed
+  document and inserts `<parsererror>` as the root's first child, so `parseXML`
+  accepted malformed `content.xml` silently. jsdom had masked it by replacing
+  the document element with the parsererror. `parseXML` now detects both shapes
+  plus Chrome's XHTML error page.
+- Browser speed work: style indexing walks only `office:styles`,
+  `office:automatic-styles` and `office:master-styles` instead of every body
+  element; each element's attributes are indexed once and cached in a WeakMap;
+  the ODT/ODS/ODP hot loops follow child pointers instead of allocating arrays;
+  text-only runs use `textContent`; ODP stops deep-searching text frames for
+  images; repeated cells/rows are copied only when the counter actually repeats.
+- Browser medians on headless Chrome 155 (5 MB XML, one warm-up plus seven runs
+  with a forced collection between): ODT 122–128 ms, ODS 194–195 ms, ODP
+  196–201 ms. ODT meets the PRD's 150 ms target; ODS and ODP do not, and native
+  XML parsing is now 35–47% of their samples. Node + jsdom is 949 / 1435 /
+  1461 ms for the same fixtures.
+- Accuracy: `table:table-header-columns` is now traversed, so column widths
+  and styles are read from LibreOffice's header-column groups.
+- Size: 23.35 / 8.97 KB (ODT), 17.17 / 7.05 KB (ODS) and 18.78 / 7.69 KB (ODP),
+  slightly below the previous 23.55 / 17.19 / 18.82 KB despite the new parser
+  and cache code. The space came from shorter diagnostics, redundant CSS rules
+  and a smaller ZIP entry record.
+- Verification: 113 Node tests and 13 browser checks pass; `npm run check` is
+  green.
+
 ### Size, speed and accuracy refinement
 
 - Traversal is now child-pointer based. A CPU profile of the 5 MB benchmark

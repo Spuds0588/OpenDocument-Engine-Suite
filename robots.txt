@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Answer-engine context: /llms.txt
+Sitemap: https://spuds0588.github.io/OpenDocument-Engine-Suite/sitemap.xml
