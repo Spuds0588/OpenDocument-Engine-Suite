@@ -387,15 +387,17 @@ export function triggerPrintToPDF(htmlContent) {
 
 # SECTION 3: DEVELOPMENT TASK LIST & WORK BREAKDOWN STRUCTURE (WBS)
 
+Status: every task below is delivered as of v1.0.0. What shipped, and the two targets that were consciously left unmet, is recorded in `history.md`.
+
 ## Phase 1: Core Foundation & Infrastructure
-- [ ] **TASK-CORE-101**: Monorepo workspace initialization with pnpm and subpackage configurations.
-- [ ] **TASK-CORE-102**: Implement zero-dependency `unzipContainer` in `packages/core/src/zip.js` with Central Directory parsing and `DecompressionStream('deflate-raw')`.
-- [ ] **TASK-CORE-103**: Implement namespace-agnostic DOM helper methods in `packages/core/src/xml.js`.
-- [ ] **TASK-CORE-104**: Implement `StyleResolver` in `packages/core/src/styles.js` resolving inheritance and mapping FO/OASIS properties to CSS.
-- [ ] **TASK-CORE-105**: Implement `MediaResolver` in `packages/core/src/media.js` extracting `Pictures/*` into `Blob` URLs and tracking teardown lifecycles.
-- [ ] **TASK-CORE-106**: Add diagnostic logging harness with categorized prefixes (`[ODF:Zip]`, `[ODF:Styles]`, `[ODF:Parse]`).
+- [x] **TASK-CORE-101**: Monorepo workspace initialization with pnpm and subpackage configurations.
+- [x] **TASK-CORE-102**: Implement zero-dependency `unzipContainer` in `packages/core/src/zip.js` with Central Directory parsing and `DecompressionStream('deflate-raw')`.
+- [x] **TASK-CORE-103**: Implement namespace-agnostic DOM helper methods in `packages/core/src/xml.js`.
+- [x] **TASK-CORE-104**: Implement `StyleResolver` in `packages/core/src/styles.js` resolving inheritance and mapping FO/OASIS properties to CSS.
+- [x] **TASK-CORE-105**: Implement `MediaResolver` in `packages/core/src/media.js` extracting `Pictures/*` into `Blob` URLs and tracking teardown lifecycles.
+- [x] **TASK-CORE-106**: Add diagnostic logging harness with categorized prefixes (`[ODF:Zip]`, `[ODF:Styles]`, `[ODF:Parse]`).
 
 ## Phase 2: `odt-engine` (Package 1: OpenDocument Text)
-- [ ] **TASK-ODT-201**: Implement `packages/odt-engine/src/parser.js` parsing `<office:text>`, `<text:h>`, `<text:p>`, and `<text:span>`.
-- [ ] **TASK-ODT-202**: Add list hierarchy parser supporting nested `<text:list>` and bullet numbering.
-- [ ] **TASK-ODT-203**: Add table layout parser supporting `<table:table>`, `<table:table-ro
+- [x] **TASK-ODT-201**: Implement `packages/odt-engine/src/parser.js` parsing `<office:text>`, `<text:h>`, `<text:p>`, and `<text:span>`.
+- [x] **TASK-ODT-202**: Add list hierarchy parser supporting nested `<text:list>` and bullet numbering.
+- [x] **TASK-ODT-203**: Add table layout parser supporting `<table:table>`, `<table:table-ro

@@ -135,7 +135,7 @@ Text is decompressed in memory with the native stream API, without a copy to loc
 ## Limitations
 
 - Reading and rendering only; no editing.
-- Footnotes and comments are skipped in this release.
+- Footnotes and comments are not part of the AST.
 - ZIP64 archives are rejected.
 - Node.js needs a `DOMParser` polyfill; browsers need none.
 

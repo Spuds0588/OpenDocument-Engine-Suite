@@ -161,7 +161,7 @@ The released artifacts are the committed `dist/` bundles; `packages/*/src` holds
 
 ```bash
 npm install
-npm run check         # 116 tests, build, dist smoke test and 15 browser checks in Chrome
+npm run check         # 116 tests, build, dist smoke test and 16 browser checks in Chrome
 npm run bench         # 5 MB parse benchmark (Node + jsdom)
 npm run bench:browser # 5 MB parse benchmark in headless Chrome
 ```

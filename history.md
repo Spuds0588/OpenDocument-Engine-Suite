@@ -46,14 +46,13 @@ shipped libraries.
 - `todo.md` was removed. Its queue was empty and the two open targets are
   decisions, recorded here:
   - **Distribution** is a URL import or a single-file download, not npm.
-    Revisit only if a registry release is requested.
   - **Bundle size** stays at 23.35 / 17.17 / 18.78 KB (8.97 / 7.05 / 7.69 KB
     gzipped) by choice: reaching 15 KB means dropping parser or renderer
     features. The build still enforces the 24 KB / 10 KB regression cap.
   - **Browser parse time** for ~5 MB is 122-128 ms (ODT) and 194-201 ms
     (ODS/ODP) in Chrome 155. Native parsing plus decompression alone is 125 ms
     (ODS) and 134 ms (ODP) of any 150 ms budget, so closing the gap needs a
-    streaming parser rather than tuning. Out of scope for v1.
+    streaming parser rather than tuning. Out of scope.
 - `AGENTS.md` gained the release tagging rule (`<engine>-v<version>` on the
   commit that carries the built bundle) and the rule that consumer docs stay
   free of install, build and internal-plan wording.
@@ -135,8 +134,8 @@ shipped libraries.
   headings, a visible FAQ whose questions match the `FAQPage` JSON-LD, and
   `WebSite` plus `ItemList`/`SoftwareApplication` structured data. The 1200×630
   social card is generated from the same type and palette as the page.
-- The page explains the three engines, API, source-build install (the packages
-  are not on npm yet), the native-API approach, a cautious comparison with
+- The page explains the three engines, API, source-build  install as it stood at the time, the native-API approach, a cautious
+  comparison with
   all-in-one office toolkits, measured Chrome and bundle numbers, and the known
   limitations. Claims match `README.md` and `history.md`.
 - Verified in Chrome at 1440px and 390px, light and dark schemes: no horizontal
@@ -317,4 +316,5 @@ clean under `tsc --noEmit`.
 
 No editing. ODF only. ZIP64 rejected. Footnotes/comments skipped in ODT.
 Formulas preserved but not evaluated. Slide media/animation not rendered.
-No real LibreOffice fixture or parse benchmark yet.
+No real producer fixture and no parse benchmark at that point; both were added
+later (see the entries above).
