@@ -6,39 +6,39 @@ Keywords: javascript parse odt, browser odt to pdf, convert odt to html in the b
 
 ## Use it
 
-One file, no install. Import it from a URL:
+One file, no install. Two builds ship: `global.js` for a plain script tag (it defines `window.ODT`) and `index.js` for `import`.
+
+**Script tag** — nothing else needed:
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/global.js"></script>
+<script>
+  const input = document.querySelector('input[type=file]');
+  input.addEventListener('change', () => {
+    ODT.parseODT(input.files[0]).then((doc) => {
+      document.querySelector('#preview').innerHTML = doc.toHTML();
+    });
+  });
+</script>
+```
+
+**ES module**:
 
 ```js
 import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
 ```
 
-Load it in the `<head>` of a page. `type="module"` is required and module scripts are deferred, so the DOM is ready when the code runs:
-
-```html
-<head>
-  <script type="module">
-    import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
-
-    const input = document.querySelector('input[type=file]');
-    input.addEventListener('change', async () => {
-      const doc = await parseODT(input.files[0]);
-      document.querySelector('#preview').innerHTML = doc.toHTML();
-    });
-  </script>
-</head>
-```
-
-Or copy the library into your project with one command:
+**Or copy the file into your project**:
 
 ```bash
-curl -sLo odt-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js
+curl -sLo odt-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/global.js
 ```
 
-```js
-import { parseODT } from './odt-engine.js';
+```html
+<script src="./odt-engine.js"></script>
 ```
 
-GitHub Pages serves the same bytes: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js`. Swap the release tag for `main` to follow the newest build. The download is the complete library, 23.35 KB minified / 8.97 KB gzipped, with its types in `dist/index.d.ts`.
+GitHub Pages serves the same files: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/global.js`. Swap the release tag for `main` to follow the newest build. Sizes: 23.35 KB minified / 8.97 KB gzipped for the module build, 23.82 KB for the script-tag build; types are in `dist/index.d.ts`.
 
 ## Quick start
 

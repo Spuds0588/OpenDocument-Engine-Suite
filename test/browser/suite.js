@@ -434,6 +434,47 @@ await test('real files: producer output parses in the browser', async () => {
   deck.destroy();
 });
 
+/* ------------------------------ script tag ------------------------------ */
+
+await test('script tag: the global builds work without a module loader', async () => {
+  const load = async (path) => {
+    const script = document.createElement('script');
+    script.src = path;
+    const done = new Promise((resolve, reject) => {
+      script.addEventListener('load', resolve, { once: true });
+      script.addEventListener('error', () => reject(new Error(`failed to load ${path}`)), { once: true });
+    });
+    document.head.append(script);
+    await done;
+  };
+
+  await load('/packages/odt-engine/dist/global.js');
+  await load('/packages/ods-engine/dist/global.js');
+  await load('/packages/odp-engine/dist/global.js');
+
+  for (const name of ['ODT', 'ODS', 'ODP']) {
+    eq(typeof globalThis[name], 'object', `window.${name}`);
+  }
+  eq(typeof globalThis.ODT.parseODT, 'function', 'window.ODT.parseODT');
+  eq(typeof globalThis.ODS.parseODS, 'function', 'window.ODS.parseODS');
+  eq(typeof globalThis.ODP.parseODP, 'function', 'window.ODP.parseODP');
+  eq(typeof globalThis.ODT.triggerPrintToPDF, 'function', 'window.ODT.triggerPrintToPDF');
+  ok(globalThis.ODT !== globalThis.ODS, 'separate namespaces');
+
+  const doc = await globalThis.ODT.parseODT(await odtFixture());
+  eq(doc.body[0].type, 'heading', 'first block from the global build');
+  match(doc.toHTML(), /<h2/, 'HTML from the global build');
+  doc.destroy();
+
+  const workbook = await globalThis.ODS.parseODS(await odsFixture());
+  same(workbook.sheetNames, ['Sales', '__proto__'], 'sheets from the global build');
+  workbook.destroy();
+
+  const deck = await globalThis.ODP.parseODP(await odpFixture());
+  eq(deck.meta.slideCount, 2, 'slides from the global build');
+  deck.destroy();
+});
+
 /* -------------------------------- memory -------------------------------- */
 
 await test('memory: repeated parse, render and destroy cycles do not accumulate', async () => {

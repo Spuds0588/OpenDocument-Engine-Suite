@@ -24,6 +24,9 @@ const KB = 1024;
 const TARGET = { minified: 15 * KB, gzipped: 5 * KB };
 const CAP = { minified: 24 * KB, gzipped: 10 * KB };
 
+// Each engine also ships a classic-script build for plain <script src> tags.
+const GLOBALS = { 'odt-engine': 'ODT', 'ods-engine': 'ODS', 'odp-engine': 'ODP' };
+
 const format = (bytes) => `${(bytes / KB).toFixed(2)} KB`;
 const failures = [];
 
@@ -48,8 +51,21 @@ for (const engine of ENGINES) {
   await copyFile(path.join(sourceDir, 'index.d.ts'), path.join(outDir, 'index.d.ts'));
   await copyFile(CORE_TYPES, path.join(outDir, 'types.d.ts'));
 
+  await build({
+    entryPoints: [path.join(sourceDir, 'index.js')],
+    bundle: true,
+    format: 'iife',
+    globalName: GLOBALS[engine],
+    target: ['es2020'],
+    minify: true,
+    legalComments: 'none',
+    outfile: path.join(outDir, 'global.js'),
+  });
+
   const { size } = await stat(path.join(outDir, 'index.js'));
   const gzipped = gzipSync(await readFile(path.join(outDir, 'index.js')), { level: 9 }).length;
+  const { size: globalSize } = await stat(path.join(outDir, 'global.js'));
+  const globalGzipped = gzipSync(await readFile(path.join(outDir, 'global.js')), { level: 9 }).length;
 
   const overTarget = size > TARGET.minified || gzipped > TARGET.gzipped;
   const overCap = size > CAP.minified || gzipped > CAP.gzipped;
@@ -57,7 +73,8 @@ for (const engine of ENGINES) {
   const gap = overTarget ? 'over PRD target' : 'within PRD target';
 
   console.log(
-    `${status} ${engine.padEnd(12)} ${format(size).padStart(9)} minified  ${format(gzipped).padStart(9)} gzipped  (${gap})`,
+    `${status} ${engine.padEnd(12)} ${format(size).padStart(9)} minified  ${format(gzipped).padStart(9)} gzipped  (esm, ${gap})\n`
+    + `     ${'global'.padEnd(12)} ${format(globalSize).padStart(9)} minified  ${format(globalGzipped).padStart(9)} gzipped  (script tag, window.${GLOBALS[engine]})`,
   );
 
   if (overCap) {

@@ -6,6 +6,25 @@ shipped libraries.
 
 ## 2026-10-27
 
+### Script-tag build for plain <script src>
+
+- The bundles are ES modules, so `<script src="...index.js">` failed with a
+  syntax error on `export`; only `type="module"` plus an import worked. Each
+  engine now also builds `dist/global.js`, an IIFE from the same entry point
+  that defines `window.ODT`, `window.ODS` or `window.ODP`, so one plain script
+  tag is enough. Cost: 0.4–0.5 KB per engine (23.82 / 17.64 / 19.25 KB minified
+  against 23.35 / 17.17 / 18.78 KB for the module build). Nothing is duplicated
+  in source; `scripts/build.mjs` runs esbuild twice.
+- README, the package READMEs, the landing page and `llms.txt` lead with the
+  script-tag path and keep the module import and single-file copy alongside it,
+  since one library now answers both `<script src>` and `import` users. The
+  landing page example no longer needs the `type="module"` caveat to be useful.
+- The browser suite gained a check that loads all three global builds with
+  script tags, asserts the three namespaces coexist, and parses each fixture
+  through them: 16 browser checks now.
+- AGENTS.md records that every engine ships both files and that each release tag
+  must contain both.
+
 ### v1.0 releases and single-file distribution
 
 - The three libraries are released as **1.0.0**: tags `odt-engine-v1.0.0`,

@@ -6,39 +6,39 @@ Keywords: read ods file in browser, ods to json javascript, lightweight ods pars
 
 ## Use it
 
-One file, no install. Import it from a URL:
+One file, no install. Two builds ship: `global.js` for a plain script tag (it defines `window.ODS`) and `index.js` for `import`.
+
+**Script tag** — nothing else needed:
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/global.js"></script>
+<script>
+  const input = document.querySelector('input[type=file]');
+  input.addEventListener('change', () => {
+    ODS.parseODS(input.files[0]).then((workbook) => {
+      document.querySelector('#preview').innerHTML = workbook.toHTML();
+    });
+  });
+</script>
+```
+
+**ES module**:
 
 ```js
 import { parseODS } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/index.js';
 ```
 
-Load it in the `<head>` of a page. `type="module"` is required and module scripts are deferred, so the DOM is ready when the code runs:
-
-```html
-<head>
-  <script type="module">
-    import { parseODS } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/index.js';
-
-    const input = document.querySelector('input[type=file]');
-    input.addEventListener('change', async () => {
-      const workbook = await parseODS(input.files[0]);
-      document.querySelector('#preview').innerHTML = workbook.toHTML();
-    });
-  </script>
-</head>
-```
-
-Or copy the library into your project with one command:
+**Or copy the file into your project**:
 
 ```bash
-curl -sLo ods-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/index.js
+curl -sLo ods-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/global.js
 ```
 
-```js
-import { parseODS } from './ods-engine.js';
+```html
+<script src="./ods-engine.js"></script>
 ```
 
-GitHub Pages serves the same bytes: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js`. Swap the release tag for `main` to follow the newest build. The download is the complete library, 17.17 KB minified / 7.05 KB gzipped, with its types in `dist/index.d.ts`.
+GitHub Pages serves the same files: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/global.js`. Swap the release tag for `main` to follow the newest build. Sizes: 17.17 KB minified / 7.05 KB gzipped for the module build, 17.64 KB for the script-tag build; types are in `dist/index.d.ts`.
 
 ## Quick start
 

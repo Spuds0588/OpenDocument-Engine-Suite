@@ -6,39 +6,39 @@ Keywords: javascript parse odp slides, odp presentation viewer js, libreoffice i
 
 ## Use it
 
-One file, no install. Import it from a URL:
+One file, no install. Two builds ship: `global.js` for a plain script tag (it defines `window.ODP`) and `index.js` for `import`.
+
+**Script tag** — nothing else needed:
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/global.js"></script>
+<script>
+  const input = document.querySelector('input[type=file]');
+  input.addEventListener('change', () => {
+    ODP.parseODP(input.files[0]).then((deck) => {
+      document.querySelector('#preview').innerHTML = deck.toHTML();
+    });
+  });
+</script>
+```
+
+**ES module**:
 
 ```js
 import { parseODP } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/index.js';
 ```
 
-Load it in the `<head>` of a page. `type="module"` is required and module scripts are deferred, so the DOM is ready when the code runs:
-
-```html
-<head>
-  <script type="module">
-    import { parseODP } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/index.js';
-
-    const input = document.querySelector('input[type=file]');
-    input.addEventListener('change', async () => {
-      const deck = await parseODP(input.files[0]);
-      document.querySelector('#preview').innerHTML = deck.toHTML();
-    });
-  </script>
-</head>
-```
-
-Or copy the library into your project with one command:
+**Or copy the file into your project**:
 
 ```bash
-curl -sLo odp-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/index.js
+curl -sLo odp-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/global.js
 ```
 
-```js
-import { parseODP } from './odp-engine.js';
+```html
+<script src="./odp-engine.js"></script>
 ```
 
-GitHub Pages serves the same bytes: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js`. Swap the release tag for `main` to follow the newest build. The download is the complete library, 18.78 KB minified / 7.69 KB gzipped, with its types in `dist/index.d.ts`.
+GitHub Pages serves the same files: `https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/global.js`. Swap the release tag for `main` to follow the newest build. Sizes: 18.78 KB minified / 7.69 KB gzipped for the module build, 19.25 KB for the script-tag build; types are in `dist/index.d.ts`.
 
 ## Quick start
 

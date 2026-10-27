@@ -14,43 +14,56 @@ Each library is one self-contained ES module of 17–23 KB with an empty depende
 
 ## Use it
 
-### 1. Import it from a URL
+One file per library, no install and no build. Two builds ship for each: `dist/global.js` for a plain `<script src>` tag (it defines `window.ODT`, `window.ODS` or `window.ODP`), and `dist/index.js` for `import`.
+
+| Library | `<script src>` build | Module build |
+| --- | --- | --- |
+| `odt-engine` | [global.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/global.js) → `ODT` | [index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js) |
+| `ods-engine` | [global.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/global.js) → `ODS` | [index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/index.js) |
+| `odp-engine` | [global.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/global.js) → `ODP` | [index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/index.js) |
+
+The jsDelivr URLs are frozen at the v1.0.0 release; GitHub Pages serves the same files from the current `main` build (`https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/global.js`). Swap the release tag for `@main` on jsDelivr to follow the newest build.
+
+### Script tag
+
+Nothing else needed: one `<script src>` and the global is there.
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/global.js"></script>
+<script>
+  ODT.parseODT(file).then((doc) => {
+    document.querySelector('#preview').innerHTML = doc.toHTML();
+  });
+</script>
+```
+
+### ES module
 
 ```js
 import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
 ```
 
-| Library | jsDelivr (pinned to v1.0.0) | GitHub Pages (current `main`) |
-| --- | --- | --- |
-| `odt-engine` | [dist/index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js) | [mirror](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odt-engine/dist/index.js) |
-| `ods-engine` | [dist/index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@ods-engine-v1.0.0/packages/ods-engine/dist/index.js) | [mirror](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/ods-engine/dist/index.js) |
-| `odp-engine` | [dist/index.js](https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odp-engine-v1.0.0/packages/odp-engine/dist/index.js) | [mirror](https://spuds0588.github.io/OpenDocument-Engine-Suite/packages/odp-engine/dist/index.js) |
-
-The jsDelivr URLs are frozen at the v1.0.0 release; GitHub Pages always serves the current `main` build. Swap the release tag for `@main` on jsDelivr if you would rather follow the newest build. Both hosts serve the identical file.
-
-### 2. Or drop it into an HTML page
-
-A module script in the `<head>` is deferred, so the DOM is ready when the code runs:
+That file also works with `import()`, Vite, webpack or any other ESM-aware bundler. In an HTML page, a module script needs `type="module"` (and is deferred, so the DOM is ready):
 
 ```html
-<head>
-  <script type="module">
-    import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
+<script type="module">
+  import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
 
-    const input = document.querySelector('input[type=file]');
-    input.addEventListener('change', async () => {
-      const doc = await parseODT(input.files[0]);
-      document.querySelector('#preview').innerHTML = doc.toHTML();
-    });
-  </script>
-</head>
+  const doc = await parseODT(file);
+</script>
 ```
 
-`type="module"` is required because the bundle is an ES module; the same file also works with `import()`, Vite, webpack or any other ESM-aware bundler.
+### Copy the file into your project
 
-### 3. Or copy the file into your project
+One command downloads the whole library — pick the build that matches how you load it:
 
-One command downloads the whole library:
+```bash
+curl -sLo odt-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/global.js
+```
+
+```html
+<script src="./odt-engine.js"></script>
+```
 
 ```bash
 curl -sLo odt-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js
@@ -60,7 +73,7 @@ curl -sLo odt-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engin
 import { parseODT } from './odt-engine.js';
 ```
 
-That is the complete integration: no package manager, no build step, no files to keep in sync. TypeScript declarations live next to each bundle (`dist/index.d.ts`).
+That is the complete integration: no package manager, no build step, no files to keep in sync. TypeScript declarations live next to the module build (`dist/index.d.ts`).
 
 ## Quick start
 
@@ -126,6 +139,8 @@ Chrome 80+, Edge 80+, Firefox 113+, Safari 16.4+ and any runtime with `Decompres
 | `odt-engine` | 23.35 KB | 8.97 KB | 122–128 ms |
 | `ods-engine` | 17.17 KB | 7.05 KB | 194–195 ms |
 | `odp-engine` | 18.78 KB | 7.69 KB | 196–201 ms |
+
+Those are the module builds; the script-tag builds are 0.4–0.5 KB larger (23.82 / 17.64 / 19.25 KB).
 
 Measured on roughly 5 MB of document XML per library: one warm-up parse, then seven timed parses in headless Chrome with a forced collection between runs; the median is shown. Most of the remaining time is the browser's own XML parser (112–121 ms of an ODS or ODP run, 62 ms of an ODT run); decompression is 13–15 ms. Under Node 20 with jsdom the same fixtures take 0.95 / 1.44 / 1.46 s, so the browser numbers are the ones that matter for a frontend.
 

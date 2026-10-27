@@ -165,7 +165,7 @@
           "name": "Can I use the libraries without npm or a build step?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes, that is the intended path. Each library is one self-contained ES module: import it straight from jsDelivr or GitHub Pages, or download it into your project with a single curl command. Nothing is installed and nothing is built."
+            "text": "Yes, that is the intended path. Add one <script src> tag for the global.js build, import the index.js module build, or download either file into your project with a single curl command. Nothing is installed and nothing is built."
           }
         }
       ]
@@ -273,60 +273,53 @@
     <div class="section-head">
       <p class="section-label">02 / Use it</p>
       <h2>One file. Nothing to install.</h2>
-      <p>Each library is a single 17–23 KB ES module with no dependencies. Import it from a URL, add one script tag to a page, or copy the file into your project.</p>
+      <p>Each library is a single 17–24 KB file with no dependencies, in two builds: <code>global.js</code> for a plain <code>&lt;script src&gt;</code> tag and <code>index.js</code> for <code>import</code>.</p>
     </div>
 
     <div class="install-grid">
       <div class="install-col">
-        <p class="note"><strong>Import it from a URL.</strong> No install, no build, no bundler, and the document never leaves the page.</p>
+        <p class="note"><strong>Script tag:</strong> the <code>global.js</code> build defines <code>window.ODT</code>. One tag, no module type, no loader, no build.</p>
+        <figure class="code">
+          <figcaption><span>index.html</span><button class="copy" type="button">Copy</button></figcaption>
+          <pre><code>&lt;script src="https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/global.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  ODT.parseODT(file).then((doc) =&gt; {
+    document.querySelector('#preview').innerHTML = doc.toHTML();
+  });
+&lt;/script&gt;</code></pre>
+        </figure>
+        <p class="step">Prefer imports? The same library ships as an ES module for <code>import</code>, <code>import()</code>, Vite or webpack. A module script in a page needs <code>type="module"</code>, which is deferred, so the DOM is ready:</p>
         <figure class="code">
           <figcaption><span>app.js</span><button class="copy" type="button">Copy</button></figcaption>
           <pre><code>import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
 
-const file = document.querySelector('input[type=file]').files[0];
 const doc = await parseODT(file);
-
 document.querySelector('#preview').innerHTML = doc.toHTML();
 console.log(doc.toMarkdown());
-
 doc.destroy(); // release Blob URLs for embedded images</code></pre>
-        </figure>
-        <p class="step">A module script in the <code>&lt;head&gt;</code> is deferred, so the DOM is ready when it runs. <code>type="module"</code> is required because the file is an ES module:</p>
-        <figure class="code">
-          <figcaption><span>index.html</span><button class="copy" type="button">Copy</button></figcaption>
-          <pre><code>&lt;head&gt;
-  &lt;script type="module"&gt;
-    import { parseODT } from 'https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js';
-
-    const input = document.querySelector('input[type=file]');
-    input.addEventListener('change', async () =&gt; {
-      const doc = await parseODT(input.files[0]);
-      document.querySelector('#preview').innerHTML = doc.toHTML();
-    });
-  &lt;/script&gt;
-&lt;/head&gt;</code></pre>
         </figure>
       </div>
 
       <div class="install-col">
-        <p class="step">Or copy the library into your project. One command downloads all of it — no package manager, no build step, no other files:</p>
+        <p class="step">Or copy the file into your project. One command downloads the whole library — pick the build that matches how you load it:</p>
         <figure class="code">
           <figcaption><span>terminal</span><button class="copy" type="button">Copy</button></figcaption>
-          <pre><code>curl -sLo odt-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/index.js</code></pre>
+          <pre><code>curl -sLo odt-engine.js https://cdn.jsdelivr.net/gh/Spuds0588/OpenDocument-Engine-Suite@odt-engine-v1.0.0/packages/odt-engine/dist/global.js</code></pre>
         </figure>
         <figure class="code">
-          <figcaption><span>app.js</span><button class="copy" type="button">Copy</button></figcaption>
-          <pre><code>import { parseODT } from './odt-engine.js';
-
-const doc = await parseODT(file);</code></pre>
+          <figcaption><span>index.html</span><button class="copy" type="button">Copy</button></figcaption>
+          <pre><code>&lt;script src="./odt-engine.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  ODT.parseODT(file).then((doc) =&gt; { /* ... */ });
+&lt;/script&gt;</code></pre>
         </figure>
-        <p class="step">Swap <code>odt-engine</code> for <code>ods-engine</code> or <code>odp-engine</code> in either path. The download is the complete library, and TypeScript declarations sit next to it in <code>dist/index.d.ts</code>.</p>
+        <p class="step">Swap <code>odt-engine</code> for <code>ods-engine</code> or <code>odp-engine</code>, and <code>global.js</code> for <code>index.js</code> if you import instead. TypeScript declarations sit next to the module build in <code>dist/index.d.ts</code>.</p>
       </div>
     </div>
 
     <div class="cdn">
-      <h3>Both hosts serve the same file</h3>
-      <p>GitHub Pages always serves the current <code>main</code> build; jsDelivr can pin any branch, tag or commit SHA. Both hosts serve the identical file.</p>
+      <h3>Both hosts serve the same files</h3>
+      <p>Every library is published as <code>dist/global.js</code> and <code>dist/index.js</code> on both hosts. GitHub Pages always serves the current <code>main</code> build; jsDelivr can pin any branch, tag or commit SHA.</p>
       <div class="table-wrap">
         <table class="mirrors">
           <caption class="visually-hidden">Direct ESM bundle URLs by engine and host</caption>
@@ -521,7 +514,7 @@ const { parseODT } = engine;</code></pre>
       </article>
       <article>
         <h3>Can I use the libraries without npm or a build step?</h3>
-        <p>Yes, that is the intended path. Each library is one self-contained ES module: import it straight from jsDelivr or GitHub Pages, or download it into your project with a single <code>curl</code> command. Nothing is installed and nothing is built.</p>
+        <p>Yes, that is the intended path. Add one <code>&lt;script src&gt;</code> tag for the <code>global.js</code> build, import the <code>index.js</code> module build, or download either file into your project with a single <code>curl</code> command. Nothing is installed and nothing is built.</p>
       </article>
     </div>
   </section>

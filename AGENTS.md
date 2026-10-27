@@ -78,18 +78,21 @@ dependencies only.
   must not re-parse XML. The exact shapes are in
   `packages/core/src/types.d.ts`.
 - **Committed dist is public.** `packages/*/dist` is tracked because GitHub
-  Pages and jsDelivr serve those bundles directly. Run `npm run build` before
-  committing a source change and include the refreshed `dist`; the URLs on the
-  landing page and in the READMEs must keep resolving. `@main` URLs follow the
-  latest build, so each release is tagged `<engine>-v<version>` (for example
-  `odt-engine-v1.0.0`) on the commit that contains its built bundle, and the
-  READMEs link that tag.
+  Pages and jsDelivr serve those bundles directly. Each engine ships two files:
+  `dist/index.js` (ES module, the documented `import` path) and `dist/global.js`
+  (classic script defining `window.ODT`, `ODS` or `ODP`). Run `npm run build`
+  before committing a source change and include both refreshed bundles; the URLs
+  on the landing page and in the READMEs must keep resolving. `@main` URLs
+  follow the latest build, so each release is tagged `<engine>-v<version>` (for
+  example `odt-engine-v1.0.0`) on the commit that contains its built bundles,
+  and the READMEs link that tag.
 - **The audience is a consumer, not a contributor.** People load one bundle
   from a URL or copy that single file; keep consumer docs free of install,
   build, test and internal-plan wording, and keep those details here or in
   `history.md`.
-- **ESM only.** `"type": "module"`, no CommonJS build, no transpiler in the
-  source path.
+- **ESM source.** `"type": "module"`, no CommonJS source and no transpiler in
+  the source path. `global.js` is an IIFE bundle esbuild derives from the same
+  entry point; nothing is written twice.
 
 ## Tests and fixtures
 
