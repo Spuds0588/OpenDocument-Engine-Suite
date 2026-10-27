@@ -1,8 +1,8 @@
 # OpenDocument Engine Suite
 
-Three zero-dependency JavaScript engines for reading OpenDocument files in the browser and turning them into HTML, print-ready PDF output, Markdown, CSV or JSON.
+Live page and documentation: **[spuds0588.github.io/OpenDocument-Engine-Suite](https://spuds0588.github.io/OpenDocument-Engine-Suite/)**
 
-Website: [spuds0588.github.io/OpenDocument-Engine-Suite](https://spuds0588.github.io/OpenDocument-Engine-Suite/)
+Three zero-dependency JavaScript engines for reading OpenDocument files in the browser and turning them into HTML, print-ready PDF output, Markdown, CSV or JSON.
 
 | Package | Handles | Main exports |
 | --- | --- | --- |
