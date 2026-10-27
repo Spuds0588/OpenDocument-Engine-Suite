@@ -85,6 +85,26 @@ export function properties(element) {
   return css;
 }
 
+/**
+ * Visit the style definitions in a document.
+ *
+ * ODF keeps every style, page layout and master page in office:styles,
+ * office:automatic-styles or office:master-styles. Walking only those
+ * containers avoids traversing the whole body (megabytes of paragraphs and
+ * cells) just to find a handful of style elements.
+ */
+const STYLE_CONTAINERS = new Set(['styles', 'automatic-styles', 'master-styles']);
+
+function walkStyleContainers(doc, visit) {
+  const root = doc && doc.documentElement;
+  if (!root) return;
+  for (const container of getChildElements(root)) {
+    if (!STYLE_CONTAINERS.has(localNameOf(container))) continue;
+    visit(container);
+    walkElements(container, visit);
+  }
+}
+
 /** Merge every property container inside a style element. */
 function extract(element) {
   const css = {};
@@ -104,7 +124,6 @@ export class StyleResolver {
   /** Index a styles.xml or content.xml document; later documents win. */
   addStylesDoc(doc) {
     if (!doc || !doc.documentElement) return this;
-    const root = doc.documentElement;
     const visit = (element) => {
       const tag = localNameOf(element);
       const name = getAttribute(element, 'name');
@@ -123,8 +142,7 @@ export class StyleResolver {
       }
     };
 
-    visit(root);
-    walkElements(root, visit);
+    walkStyleContainers(doc, visit);
 
     this.resolved.clear();
     return this;
@@ -216,7 +234,6 @@ export function addLayoutStyles(resolver, doc, lists = false) {
   resolver.pageLayouts ||= new Map();
   resolver.masterPages ||= new Map();
   if (lists) resolver.listStyles ||= new Map();
-  const root = doc.documentElement;
   const visit = (element) => {
     const tag = localNameOf(element);
     const name = getAttribute(element, 'name');
@@ -237,8 +254,7 @@ export function addLayoutStyles(resolver, doc, lists = false) {
     }
   };
 
-  visit(root);
-  walkElements(root, visit);
+  walkStyleContainers(doc, visit);
   return resolver;
 }
 

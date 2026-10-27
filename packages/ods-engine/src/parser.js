@@ -13,7 +13,6 @@ import {
   getAttribute,
   getChildElements,
   getChildrenByTag,
-  getElementsByTag,
   getFirstElementByTag,
   localNameOf,
   numericAttribute,
@@ -39,11 +38,21 @@ export const LIMITS = {
 const clamp = (value, max) => Math.min(Math.max(Number.isFinite(value) ? value : 1, 1), max);
 
 function cellText(cellElement) {
-  const paragraphs = getElementsByTag(cellElement, 'p');
-  const text = paragraphs.length
-    ? paragraphs.map((paragraph) => textOf(paragraph)).join('\n')
-    : textOf(cellElement);
-  return text.trim();
+  let text = '';
+  let found = false;
+  const collect = (parent) => {
+    for (let child = parent.firstChild; child; child = child.nextSibling) {
+      if (child.nodeType !== 1) continue;
+      if (localNameOf(child) === 'p') {
+        text += (found ? '\n' : '') + textOf(child);
+        found = true;
+      } else {
+        collect(child);
+      }
+    }
+  };
+  collect(cellElement);
+  return (found ? text : textOf(cellElement)).trim();
 }
 
 function typedValue(cellElement) {
@@ -126,7 +135,7 @@ function collectElements(parent, wanted, out = []) {
   for (const child of getChildElements(parent)) {
     const name = localNameOf(child);
     if (name === wanted) out.push(child);
-    else if (name === 'table-rows' || name === 'table-row-group' || name === 'table-header-rows' || name === 'table-columns' || name === 'table-column-group') {
+    else if (name === 'table-rows' || name === 'table-row-group' || name === 'table-header-rows' || name === 'table-columns' || name === 'table-header-columns' || name === 'table-column-group') {
       collectElements(child, wanted, out);
     }
   }
@@ -148,7 +157,8 @@ function parseColumns(tableElement, styles) {
 
 function parseCells(rowElement) {
   const cells = [];
-  for (const cellElement of getChildElements(rowElement)) {
+  for (let cellElement = rowElement.firstChild; cellElement; cellElement = cellElement.nextSibling) {
+    if (cellElement.nodeType !== 1) continue;
     const name = localNameOf(cellElement);
     if (name !== 'table-cell' && name !== 'covered-table-cell') continue;
 
@@ -174,10 +184,12 @@ function parseCells(rowElement) {
     }
 
     const typed = typedValue(cellElement);
-    const colSpan = Math.max(numericAttribute(cellElement, 'number-columns-spanned', 1), 1);
-    const rowSpan = Math.max(numericAttribute(cellElement, 'number-rows-spanned', 1), 1);
-    for (let index = 0; index < repeat; index++) {
-      cells.push({ ...typed, colSpan, rowSpan, style });
+    typed.colSpan = Math.max(numericAttribute(cellElement, 'number-columns-spanned', 1), 1);
+    typed.rowSpan = Math.max(numericAttribute(cellElement, 'number-rows-spanned', 1), 1);
+    typed.style = style;
+    if (repeat === 1) cells.push(typed);
+    else {
+      for (let index = 0; index < repeat; index++) cells.push({ ...typed });
     }
   }
 

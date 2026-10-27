@@ -8,9 +8,7 @@ import { createLogger } from './log.js';
 const log = createLogger('Export');
 
 export function triggerPrintToPDF(htmlContent, { timeout = 60000 } = {}) {
-  if (typeof document === 'undefined') {
-    throw new Error('[ODF:Export] triggerPrintToPDF requires a DOM environment.');
-  }
+  if (typeof document === 'undefined') throw new Error('triggerPrintToPDF requires a DOM.');
 
   const iframe = document.createElement('iframe');
   iframe.setAttribute('aria-hidden', 'true');

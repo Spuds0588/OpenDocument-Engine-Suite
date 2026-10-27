@@ -13,17 +13,9 @@ import { parseODT } from '../packages/odt-engine/src/index.js';
 import { parseODS } from '../packages/ods-engine/src/index.js';
 import { parseODP } from '../packages/odp-engine/src/index.js';
 import { buildOdf, MASTER_PAGES, PAGE_LAYOUT } from '../test/helpers/odf.js';
+import { odtXml, odsXml, odpXml, TARGET_MS } from '../test/helpers/bench.js';
 
-const TARGET_BYTES = 5 * 1024 * 1024;
-const TARGET_MS = 150;
 const RUNS = 3;
-
-function fill(unit, size = TARGET_BYTES) {
-  let body = '';
-  let index = 0;
-  while (body.length < size) body += unit(index++);
-  return body;
-}
 
 async function measure(name, parse, bytes, xmlSize) {
   const times = [];
@@ -44,31 +36,6 @@ async function measure(name, parse, bytes, xmlSize) {
   );
   return median <= TARGET_MS;
 }
-
-const odtBody = fill((index) =>
-  `<text:p text:style-name="Standard">Paragraph ${index}: Lorem ipsum dolor sit amet, `
-  + 'consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</text:p>');
-
-const odsRows = fill((index) =>
-  `<table:table-row>`
-  + `<table:table-cell office:value-type="string"><text:p>Row ${index}</text:p></table:table-cell>`
-  + '<table:table-cell office:value-type="float" office:value="42"><text:p>42</text:p></table:table-cell>'
-  + '<table:table-cell office:value-type="string"><text:p>Alpha beta gamma delta epsilon zeta</text:p></table:table-cell>'
-  + '<table:table-cell office:value-type="boolean" office:boolean-value="true"><text:p>TRUE</text:p></table:table-cell>'
-  + '<table:table-cell office:value-type="string"><text:p>Tail cell</text:p></table:table-cell>'
-  + '</table:table-row>', 4 * 1024 * 1024);
-
-const odpSlides = fill((index) =>
-  `<draw:page draw:name="Slide ${index}" draw:master-page-name="Standard">`
-  + '<draw:frame svg:x="1cm" svg:y="1cm" svg:width="20cm" svg:height="4cm">'
-  + `<draw:text-box><text:p>Slide ${index} title</text:p>`
-  + '<text:list><text:list-item><text:p>First bullet point for the slide</text:p></text:list-item>'
-  + '<text:list-item><text:p>Second bullet point for the slide</text:p></text:list-item></text:list>'
-  + '</draw:text-box></draw:frame></draw:page>', 4 * 1024 * 1024);
-
-const odtXml = `<office:text>${odtBody}</office:text>`;
-const odsXml = `<office:spreadsheet><table:table table:name="Bench">${odsRows}</table:table></office:spreadsheet>`;
-const odpXml = `<office:presentation>${odpSlides}</office:presentation>`;
 
 const fixtures = [
   ['odt', parseODT, await buildOdf('odt', {

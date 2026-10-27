@@ -34,7 +34,7 @@ const MAX_HEADING_LEVEL = 6;
 
 /** Collapse XML indentation without touching real single spaces. */
 function normalizeText(value) {
-  return value.replace(/[ \t]*\n[ \t]*/g, ' ');
+  return value.includes('\n') ? value.replace(/[ \t]*\n[ \t]*/g, ' ') : value;
 }
 
 function headingLevel(element) {

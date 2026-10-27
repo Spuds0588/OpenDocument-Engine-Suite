@@ -40,7 +40,11 @@ export function getChildrenByTag(parent, localName) {
 }
 
 export function getFirstChildByTag(parent, localName) {
-  return getChildElements(parent).find((el) => localNameOf(el) === localName) || null;
+  if (!parent) return null;
+  for (let child = parent.firstChild; child; child = child.nextSibling) {
+    if (child.nodeType === 1 && localNameOf(child) === localName) return child;
+  }
+  return null;
 }
 
 export function getElementsByTag(root, localName, out = []) {
@@ -76,17 +80,29 @@ export function walkElements(root, fn, depth = 0) {
 /**
  * Read an attribute by local name, ignoring its namespace prefix.
  * `getAttribute(node, 'font-size')` matches fo:font-size, style:font-size, etc.
+ *
+ * The first lookup on an element indexes all of its attributes, so the eight
+ * or so lookups a spreadsheet cell needs cost one getAttributeNames() call
+ * instead of eight. The cache is weak, so parsed DOM trees stay collectable.
  */
+const attributeCache = new WeakMap();
+
+function indexAttributes(node) {
+  let map = attributeCache.get(node);
+  if (!map) {
+    map = new Map();
+    for (const name of node.getAttributeNames()) {
+      const local = name.slice(name.lastIndexOf(':') + 1);
+      if (!map.has(local)) map.set(local, node.getAttribute(name));
+    }
+    attributeCache.set(node, map);
+  }
+  return map;
+}
+
 export function getAttribute(node, localName) {
   if (!node || !node.getAttributeNames) return null;
-  // getAttributeNames() avoids the proxied NamedNodeMap item() loop, which
-  // measured several times slower in jsdom. Qualified names are matched by
-  // suffix, so fo:font-size still answers a lookup for font-size.
-  const suffix = `:${localName}`;
-  for (const name of node.getAttributeNames()) {
-    if (name === localName || name.endsWith(suffix)) return node.getAttribute(name);
-  }
-  return null;
+  return indexAttributes(node).get(localName) ?? null;
 }
 
 /** First defined attribute among several local names. */
@@ -105,11 +121,17 @@ export function hasAttribute(node, localName) {
 /** Plain text of a node, expanding ODF whitespace elements as it walks. */
 export function textOf(node) {
   if (!node) return '';
+  // Plain runs are the common case; textContent skips the recursive walk.
+  if (!node.firstElementChild) {
+    const value = node.textContent || '';
+    return value.includes('\r') ? value.replace(/\r\n/g, '\n') : value;
+  }
   let text = '';
   const visit = (current) => {
     for (let child = current.firstChild; child; child = child.nextSibling) {
       if (child.nodeType === 3) {
-        text += (child.nodeValue || '').replace(/\r\n/g, '\n');
+        const value = child.nodeValue || '';
+        text += value.includes('\r') ? value.replace(/\r\n/g, '\n') : value;
         continue;
       }
       if (child.nodeType !== 1) continue;
@@ -129,13 +151,21 @@ export function textOf(node) {
   return text;
 }
 
+/**
+ * Chrome reports malformed XML by keeping the partial document and inserting
+ * an XHTML <parsererror> as the root's first child. Firefox, Safari and jsdom
+ * replace the document element with <parsererror> instead, and a completely
+ * unparseable document comes back as an XHTML <html> error page.
+ */
+const XHTML = 'http://www.w3.org/1999/xhtml';
+const isParserError = (root) => !root || root.localName === 'parsererror'
+  || (root.localName === 'html' && root.namespaceURI === XHTML)
+  || (root.firstElementChild || {}).localName === 'parsererror';
+
 /** Parse XML text, surfacing malformed input as a tagged OdfError. */
 export function parseXML(source, label = 'document') {
   if (typeof DOMParser === 'undefined') {
-    throw new OdfError(
-      'DOMParser is not available in this runtime. Use a browser or provide a DOMParser polyfill.',
-      'NO_DOMPARSER',
-    );
+    throw new OdfError('DOMParser is unavailable. Use a browser or polyfill.', 'NO_DOMPARSER');
   }
   let doc;
   try {
@@ -144,10 +174,10 @@ export function parseXML(source, label = 'document') {
     throw new OdfError(`Could not parse ${label}: ${error.message}`, 'XML_PARSE', error);
   }
   const root = doc && doc.documentElement;
-  if (!root || root.localName === 'parsererror' || localNameOf(root) === 'parsererror') {
+  if (isParserError(root)) {
     throw new OdfError(`Malformed XML in ${label}.`, 'XML_PARSE');
   }
-  log.debug(`Parsed ${label} (${source.length} chars)`);
+  log.debug(`Parsed ${label}`);
   return doc;
 }
 

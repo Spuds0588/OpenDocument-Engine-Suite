@@ -35,13 +35,13 @@ export class MediaResolver {
       if (name.startsWith(prefix) && !name.endsWith('/')) this.add(name, archive.bytes(name));
     }
     const count = Object.keys(this.images).length;
-    if (count) log.debug(`Registered ${count} embedded image${count === 1 ? '' : 's'}`);
+    if (count) log.debug(`Registered ${count} image(s)`);
     return this.images;
   }
 
   add(name, bytes) {
     if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
-      throw new OdfError('URL.createObjectURL is unavailable; cannot expose embedded images.', 'NO_BLOB_URL');
+      throw new OdfError('URL.createObjectURL is unavailable.', 'NO_BLOB_URL');
     }
     const key = name.replace(/^\.\//, '');
     if (this.images[key]) return this.images[key];
@@ -69,7 +69,7 @@ export class MediaResolver {
     for (const name of Object.keys(this.images)) {
       if (name.split('/').pop() === base) return this.images[name];
     }
-    log.debug(`No embedded media matched href "${href}"`);
+    log.debug(`No media matched "${href}"`);
     return null;
   }
 

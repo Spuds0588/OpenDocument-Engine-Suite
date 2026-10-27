@@ -76,12 +76,11 @@ export function renderHTML(ast, styles) {
   const css = `@page{size:${width} ${height};margin:0}` +
     '.odp-deck{display:flex;flex-direction:column;align-items:center;gap:20px;padding:20px 12px;overflow-x:auto}' +
     '.odp-slide{position:relative;flex:0 0 auto;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.2)}' +
-    '.odp-text,.odp-shape{position:absolute;overflow:hidden;box-sizing:border-box}' +
+    '.odp-text,.odp-shape{overflow:hidden}' +
     '.odp-text p,.odp-shape p{margin:0 0 .25em;line-height:1.25;white-space:pre-wrap;overflow-wrap:break-word}' +
     '.odp-bullet{padding-left:1.15em;text-indent:-1.15em}' +
     '.odp-bullet-mark{display:inline-block;width:1.15em;text-indent:0}' +
-    '.odp-image{object-fit:contain}' +
-    '@media print{body{background:none}.odp-deck{display:block;gap:0;padding:0;overflow:visible}' +
+    '@media print{body{background:none}.odp-deck{display:block;padding:0;overflow:visible}' +
     '.odp-slide{box-shadow:none;margin:0;page-break-after:always;break-after:page}' +
     '.odp-slide:last-child{page-break-after:auto;break-after:auto}}';
 

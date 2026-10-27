@@ -28,10 +28,7 @@ async function toBytes(input) {
   if (typeof Blob !== 'undefined' && input instanceof Blob) {
     return new Uint8Array(await input.arrayBuffer());
   }
-  throw new OdfError(
-    'Unsupported input: expected ArrayBuffer, Uint8Array, Blob or File.',
-    'BAD_INPUT',
-  );
+  throw new OdfError('Unsupported input type.', 'BAD_INPUT');
 }
 
 /** Find the End Of Central Directory record, scanning back over the comment. */
@@ -45,27 +42,21 @@ function findEocd(view) {
       return offset;
     }
   }
-  throw new OdfError(
-    'Not a ZIP container: End of Central Directory record not found.',
-    'NOT_A_ZIP',
-  );
+  throw new OdfError('Not a ZIP archive.', 'NOT_A_ZIP');
 }
 
 /** Inflate one raw-deflate payload through the native stream API. */
 async function inflateRaw(bytes, name = 'entry') {
   if (bytes.byteLength === 0) return new Uint8Array(0);
   if (typeof DecompressionStream === 'undefined') {
-    throw new OdfError(
-      "This runtime has no DecompressionStream('deflate-raw'). Use a modern browser or add a polyfill.",
-      'NO_DECOMPRESSION_STREAM',
-    );
+    throw new OdfError("DecompressionStream('deflate-raw') is unavailable.", 'NO_DECOMPRESSION_STREAM');
   }
   try {
     const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
     const buffer = await new Response(stream).arrayBuffer();
     return new Uint8Array(buffer);
   } catch (error) {
-    throw new OdfError(`Corrupt ZIP: could not inflate "${name}".`, 'CORRUPT_DEFLATE', error);
+    throw new OdfError(`Could not inflate "${name}".`, 'CORRUPT_DEFLATE', error);
   }
 }
 
@@ -86,28 +77,27 @@ export async function unzipContainer(input) {
   const centralOffset = view.getUint32(eocd + 16, true);
 
   if (centralOffset === 0xffffffff || entryCount === 0xffff || centralSize === 0xffffffff) {
-    throw new OdfError('ZIP64 archives are not supported.', 'ZIP64_UNSUPPORTED');
+    throw new OdfError('ZIP64 is not supported.', 'ZIP64_UNSUPPORTED');
   }
   if (centralOffset + centralSize > bytes.byteLength) {
-    throw new OdfError('Corrupt ZIP: Central Directory is outside the file.', 'TRUNCATED_ZIP');
+    throw new OdfError('Central Directory is outside the file.', 'TRUNCATED_ZIP');
   }
 
-  log.debug(`Central Directory: ${entryCount} entries, ${centralSize} bytes`);
+  log.debug(`Central Directory: ${entryCount} entries`);
   const entries = new Map();
   let pointer = centralOffset;
 
   for (let index = 0; index < entryCount; index++) {
     if (pointer + 46 > bytes.byteLength) {
-      throw new OdfError('Corrupt ZIP: Central Directory is truncated.', 'TRUNCATED_ZIP');
+      throw new OdfError('Central Directory is truncated.', 'TRUNCATED_ZIP');
     }
     if (view.getUint32(pointer, true) !== SIG_CENTRAL) {
-      throw new OdfError(`Corrupt ZIP: bad Central Directory header at ${pointer}.`, 'BAD_CENTRAL_DIRECTORY');
+      throw new OdfError(`Bad Central Directory header at ${pointer}.`, 'BAD_CENTRAL_DIRECTORY');
     }
 
     const flags = view.getUint16(pointer + 8, true);
     const method = view.getUint16(pointer + 10, true);
     const compressedSize = view.getUint32(pointer + 20, true);
-    const uncompressedSize = view.getUint32(pointer + 24, true);
     const nameLength = view.getUint16(pointer + 28, true);
     const extraLength = view.getUint16(pointer + 30, true);
     const commentLength = view.getUint16(pointer + 32, true);
@@ -122,10 +112,10 @@ export async function unzipContainer(input) {
       continue;
     }
     if (localOffset + 30 > bytes.byteLength) {
-      throw new OdfError(`Corrupt ZIP: local header for "${name}" is outside the file.`, 'TRUNCATED_ZIP');
+      throw new OdfError(`Local header for "${name}" is outside the file.`, 'TRUNCATED_ZIP');
     }
     if (view.getUint32(localOffset, true) !== SIG_LOCAL) {
-      throw new OdfError(`Corrupt ZIP: bad local header for "${name}".`, 'BAD_LOCAL_HEADER');
+      throw new OdfError(`Bad local header for "${name}".`, 'BAD_LOCAL_HEADER');
     }
 
     // Local header lengths can differ from the Central Directory (extra fields
@@ -135,7 +125,7 @@ export async function unzipContainer(input) {
     const dataStart = localOffset + 30 + localNameLength + localExtraLength;
     const dataEnd = dataStart + compressedSize;
     if (dataEnd > bytes.byteLength) {
-      throw new OdfError(`Corrupt ZIP: data for "${name}" is truncated.`, 'TRUNCATED_ZIP');
+      throw new OdfError(`Data for "${name}" is truncated.`, 'TRUNCATED_ZIP');
     }
 
     const raw = bytes.subarray(dataStart, dataEnd);
@@ -149,13 +139,7 @@ export async function unzipContainer(input) {
       continue;
     }
 
-    entries.set(name, {
-      name,
-      method,
-      data,
-      compressedSize,
-      size: uncompressedSize || data.byteLength,
-    });
+    entries.set(name, data);
   }
 
   log.debug(`Unpacked ${entries.size} entries`);
@@ -167,9 +151,9 @@ export async function unzipContainer(input) {
     has: (name) => entries.has(name),
     list: () => Array.from(entries.keys()),
     bytes(name) {
-      const entry = entries.get(name);
-      if (!entry) throw new OdfError(`Missing archive entry: ${name}`, 'MISSING_ENTRY');
-      return entry.data;
+      const data = entries.get(name);
+      if (!data) throw new OdfError(`Missing archive entry: ${name}`, 'MISSING_ENTRY');
+      return data;
     },
     async text(name) {
       if (textCache.has(name)) return textCache.get(name);
@@ -191,10 +175,10 @@ export function assertOdfArchive(archive, expectedFormat, mimeType) {
   if (archive.has('mimetype')) {
     const declared = new TextDecoder('utf-8').decode(archive.bytes('mimetype')).trim();
     if (declared && declared !== mimeType) {
-      log.warn(`Expected mimetype "${mimeType}" for .${expectedFormat}, found "${declared}". Parsing anyway.`);
+      log.warn(`Expected ${mimeType}, found "${declared}".`);
     }
   } else {
-    log.warn('Container has no mimetype entry; parsing by content.xml only.');
+    log.warn('No mimetype entry; parsing content.xml.');
   }
   return archive;
 }

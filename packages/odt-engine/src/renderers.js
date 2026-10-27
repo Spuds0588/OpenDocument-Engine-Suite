@@ -93,11 +93,11 @@ export function renderHTML(ast, styles) {
   const margins = `${page.marginTop} ${page.marginRight} ${page.marginBottom} ${page.marginLeft}`;
   const css = `@page{size:${page.width} ${page.height};margin:${margins}}` +
     `.odf-page{width:${page.width};min-height:${page.height};padding:${margins};margin:24px auto;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18)}` +
-    '.odf-page h1,.odf-page h2,.odf-page h3,.odf-page h4,.odf-page h5,.odf-page h6{margin:.7em 0 .35em;line-height:1.25;font-weight:700}' +
-    '.odf-page p{margin:0 0 .45em}.odf-page ul,.odf-page ol{margin:.2em 0 .5em;padding-left:1.8em}' +
-    '.odf-page li>p{margin:0}.odf-page table{width:100%;margin:.4em 0}' +
-    '.odf-page td,.odf-page th{padding:2px 4px;vertical-align:top}.odf-page td>p,.odf-page th>p{margin:0}' +
-    '.odf-page td:empty::after{content:"\\00a0"}.odf-page img{display:inline-block}' +
+    'h1,h2,h3,h4,h5,h6{margin:.7em 0 .35em;line-height:1.25;font-weight:700}' +
+    'p{margin:0 0 .45em}ul,ol{margin:.2em 0 .5em;padding-left:1.8em}' +
+    'li>p{margin:0}table{width:100%;margin:.4em 0}' +
+    'td,th{padding:2px 4px;vertical-align:top}td>p,th>p{margin:0}' +
+    'td:empty::after{content:"\\00a0"}img{display:inline-block}' +
     '@media print{body{background:none}.odf-page{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}}';
 
   return pageDocument({

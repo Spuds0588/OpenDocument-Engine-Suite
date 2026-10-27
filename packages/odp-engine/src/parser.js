@@ -11,7 +11,6 @@ import {
   assertOdfArchive,
   createLogger,
   getAttribute,
-  getChildElements,
   getChildrenByTag,
   getFirstChildByTag,
   getFirstElementByTag,
@@ -48,7 +47,9 @@ const SHAPE_ELEMENTS = new Set([
 
 const SKIPPED_ELEMENTS = new Set(['notes', 'controls', 'presentation-notes']);
 
-const normalizeText = (value) => value.replace(/[ \t]*\n[ \t]*/g, ' ').trim();
+const normalizeText = (value) => (value.includes('\n')
+  ? value.replace(/[ \t]*\n[ \t]*/g, ' ')
+  : value).trim();
 
 /**
  * Collect paragraphs from a text box or shape, descending into lists so that
@@ -58,7 +59,8 @@ function collectParagraphs(container) {
   const paragraphs = [];
 
   const visit = (element, bullet = false) => {
-    for (const child of getChildElements(element)) {
+    for (let child = element.firstChild; child; child = child.nextSibling) {
+      if (child.nodeType !== 1) continue;
       const name = localNameOf(child);
       if (name === 'p' || name === 'h') {
         const text = normalizeText(textOf(child));
@@ -67,7 +69,7 @@ function collectParagraphs(container) {
         if (bullet) paragraph.bullet = true;
         paragraphs.push(paragraph);
       } else if (name === 'list') {
-        for (const item of getChildrenByTag(child, 'list-item')) visit(item, true);
+        visit(child, true);
       } else if (name === 'list-item' || name === 'list-header') {
         visit(child, bullet);
       }
@@ -90,8 +92,11 @@ function resolveGeometry(element, styles) {
 }
 
 function parseElement(element, ctx) {
-  const image = getFirstElementByTag(element, 'image');
   const textBox = getFirstChildByTag(element, 'text-box') || getFirstElementByTag(element, 'text-box');
+  // A text frame cannot also be an image frame, so only search for an image
+  // when no text box was found. Searching every text subtree for an image was
+  // measurable on slide decks with many paragraphs.
+  const image = textBox ? null : getFirstElementByTag(element, 'image');
   const forceShape = SHAPE_ELEMENTS.has(localNameOf(element));
 
   let type = 'shape';
@@ -130,7 +135,8 @@ function parseSlide(pageElement, slideNumber, ctx) {
   const elements = [];
 
   const visit = (parent) => {
-    for (const child of getChildElements(parent)) {
+    for (let child = parent.firstChild; child; child = child.nextSibling) {
+      if (child.nodeType !== 1) continue;
       const tag = localNameOf(child);
       if (SKIPPED_ELEMENTS.has(tag)) continue;
       if (tag === 'g') {

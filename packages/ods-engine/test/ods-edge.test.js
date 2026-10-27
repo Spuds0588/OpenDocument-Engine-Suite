@@ -155,6 +155,30 @@ test('reads untyped cells and rows nested in groups', async () => {
   assert.equal(sheet.rows[0].length, 2);
 });
 
+test('reads column widths from table-header-columns', async () => {
+  const workbook = await parseBody(`
+    <office:spreadsheet>
+      <table:table table:name="Header">
+        <table:table-header-columns>
+          <table:table-column table:style-name="co1" table:number-columns-repeated="2"/>
+        </table:table-header-columns>
+        <table:table-row>
+          <table:table-cell office:value-type="string"><text:p>X</text:p></table:table-cell>
+        </table:table-row>
+      </table:table>
+    </office:spreadsheet>`, {
+    automaticStyles: `
+      <style:style style:name="co1" style:family="table-column">
+        <style:table-column-properties style:column-width="3cm"/>
+      </style:style>`,
+  });
+
+  const sheet = workbook.sheet('Header');
+  assert.equal(sheet.columns.length, 2);
+  assert.equal(sheet.columns[0].width, '3cm');
+  assert.equal(sheet.columns[1].style, 'co1');
+});
+
 test('clips repeated rows at the row cap', async () => {
   const workbook = await parseBody(`
     <office:spreadsheet>

@@ -123,13 +123,13 @@ function renderSheetTable(sheet, styles) {
 const SHEET_CSS = '@page{size:A4 landscape;margin:10mm}' +
   '.odf-sheet{width:100%;margin:0 0 20px;padding:10px 12px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.16)}' +
   '.odf-sheet-title{margin:0 0 8px;font-size:14pt;font-weight:700}' +
-  '.odf-table{width:100%;margin:0;font-size:10pt;table-layout:auto}' +
-  '.odf-table td{padding:2px 5px;border:1px solid #d8d8d8;vertical-align:top;white-space:pre-wrap}' +
-  '.odf-table td.num{text-align:right;font-variant-numeric:tabular-nums}' +
-  '.odf-table td.bool,.odf-table td.date{text-align:center}' +
-  '.odf-table td:empty::after{content:"\\00a0"}.odf-blank td{height:1.4em}' +
+  'table{width:100%;margin:0;font-size:10pt}' +
+  'td{padding:2px 5px;border:1px solid #d8d8d8;vertical-align:top;white-space:pre-wrap}' +
+  'td.num{text-align:right;font-variant-numeric:tabular-nums}' +
+  'td.bool,td.date{text-align:center}' +
+  'td:empty::after{content:"\\00a0"}.odf-blank td{height:1.4em}' +
   '@media print{body{background:none}.odf-sheet{box-shadow:none;margin:0;padding:0}' +
-  '.odf-sheet+.odf-sheet{page-break-before:always}.odf-table tr{page-break-inside:avoid}}';
+  '.odf-sheet+.odf-sheet{page-break-before:always}tr{page-break-inside:avoid}}';
 
 export function renderSheetHTML(sheet, styles) {
   return pageDocument({

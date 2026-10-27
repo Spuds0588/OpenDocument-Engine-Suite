@@ -22,7 +22,7 @@ test('requires a DOM environment', () => {
   const original = globalThis.document;
   delete globalThis.document;
   try {
-    assert.throws(() => triggerPrintToPDF('<p>x</p>'), /requires a DOM environment/);
+    assert.throws(() => triggerPrintToPDF('<p>x</p>'), /requires a DOM/);
   } finally {
     globalThis.document = original;
   }
